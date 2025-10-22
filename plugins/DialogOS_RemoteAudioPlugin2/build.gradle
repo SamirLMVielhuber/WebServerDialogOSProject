@@ -1,0 +1,20 @@
+dependencies {
+    implementation project(':Diamant')
+    implementation project(':com.clt.xml')
+    implementation project(':com.clt.audio')
+    implementation project(':com.clt.base')
+    implementation project(':plugins:DialogOS_RemoteAudioPlugin')
+    
+    implementation(group:'com.github.cmusphinx', name:'sphinx4', version:'44a5c08') {
+        exclude module: 'sphinx4-data'
+        exclude module: 'sphinx4-samples'
+    }
+    implementation('com.github.marytts.marytts:marytts-signalproc:master-SNAPSHOT') {
+        exclude(group:'de.dfki.mary')
+    }
+
+    // https://mvnrepository.com/artifact/org.jitsi/libjitsi
+    implementation("org.jitsi:libjitsi:1.1-4-gfb6b03ff")
+    // https://mvnrepository.com/artifact/org.jitsi/ice4j
+    implementation("org.jitsi:ice4j:3.0-54-g2baae57")
+}

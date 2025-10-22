@@ -280,6 +280,8 @@ public class SingleDocument extends Document implements GraphOwner {
      * Constructs a new single document with one start node.
      */
     public SingleDocument() {
+        System.out.println("SingeDocument is created");
+        System.out.flush();
         this.devices = new ArrayList<Device>();
         this.pluginSettings = new HashMap<Class<? extends Plugin>, PluginSettings>();
         this.pluginManager = new PluginManager();

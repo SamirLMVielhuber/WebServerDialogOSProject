@@ -8,6 +8,4 @@ dependencies {
     implementation("org.eclipse.jetty.websocket:websocket-server:9.4.57.v20241219")
     // https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-api
     implementation("org.eclipse.jetty.websocket:websocket-api:9.4.57.v20241219")
-
-
 }

@@ -1,0 +1,45 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+
+application {
+    mainClass = 'com.clt.web2.ServerMain'
+}
+
+dependencies {
+    implementation project(':Diamant')
+    implementation project(':com.clt.base')
+    implementation project(':com.clt.xml')
+    implementation project(':com.clt.audio')
+    implementation project(':com.clt.script')
+    
+    implementation "org.eclipse.jetty.websocket:websocket-jetty-server:11.0.18"
+    implementation "org.eclipse.jetty.websocket:websocket-jetty-api:11.0.18"
+    implementation 'org.eclipse.jetty:jetty-server:11.0.22'
+    implementation 'org.eclipse.jetty:jetty-servlet:11.0.22'
+    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    implementation project(':plugins:DialogOS_RemoteAudioPlugin2')
+    implementation project(':plugins:DialogOS_MaryTTSPlugin')
+    implementation project(':plugins:DialogOS_SphinxPlugin')
+    implementation project(':plugins:DialogOS_FileAudioPlugin')
+}
+
+run {
+    jvmArgs '-Dfile.encoding=UTF8'
+}
+
+task testAudioServer(type: JavaExec) {
+    group = "application"
+    description = "Runs a test that creates GraphManager instances and prints AudioPlugin info"
+
+    mainClass.set("com.clt.webServer.TestAudioServer")
+
+    classpath = sourceSets.main.runtimeClasspath
+
+    standardInput = System.in
+
+    jvmArgs '-Dfile.encoding=UTF8'
+}

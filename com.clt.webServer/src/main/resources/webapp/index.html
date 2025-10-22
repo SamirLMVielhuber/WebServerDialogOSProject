@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dialogos Selector</title>
+</head>
+<body>
+  <h1>Choose a Graph</h1>
+
+  <button onclick="loadGraph('test')">Test</button>
+  <button onclick="loadGraph('greeting')">Greeting</button>
+  <button onclick="loadGraph('advanced')">Advanced</button>
+
+  <script>
+    function generateUserId() {
+      // Simple random userId, can be more complex
+      return 'user-' + Math.floor(Math.random() * 100000);
+    }
+
+    function loadGraph(graphName) {
+      const userId = generateUserId();
+
+      //This needs to change later either serve it on jetty directly as a welcoming file or do something else idk exactly
+      fetch('/load', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `userId=${encodeURIComponent(userId)}&graphName=${encodeURIComponent(graphName)}`
+      })
+
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          console.log('Loaded graph:', data.graphName);
+          window.location.href = `/communication.html?userId=${encodeURIComponent(userId)}`;
+        } else {
+          alert('Error loading graph: ' + JSON.stringify(data));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error connecting to server.');
+      });
+    }
+  </script>
+</body>
+</html>

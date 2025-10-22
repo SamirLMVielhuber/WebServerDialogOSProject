@@ -105,6 +105,7 @@ import java.util.concurrent.TimeoutException;
 
     public AbstractInputNode() {
         /* important that some value is set (must not be one of Boolean values, not null later) */
+        System.out.println("AbstractInputNode");
         this.setProperty(BACKGROUND, Boolean.FALSE);
         if (micInv == null) {
             micInv = Images.load(this, "asr/mic_inv.png");

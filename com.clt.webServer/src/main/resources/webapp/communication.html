@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dialogos Webclient</title>
+</head>
+<body>
+  <h1>Dialogos Webclient</h1>
+
+  <button id="startRecording">Starte Aufnahme</button>
+  <button id="stopRecording" disabled>Stoppe Aufnahme</button>
+
+  <br><br><br>
+
+  <span>Empfangene Audio:</span>
+  <meter id="volume-meter" min="0" max="100" value="0"></meter>
+
+  <br><br>
+
+  <!-- Status Lights BEFORE the scripts so elements exist -->
+  <div>
+    <h2>Status Lights</h2>
+    <div style="display: flex; gap: 30px;">
+      <div>
+        <div id="light-audio-stream"
+             style="width: 30px; height: 30px; border-radius: 50%;
+                    background-color: red; cursor: pointer;">
+        </div>
+        <p>Audio Stream</p>
+      </div>
+      <div>
+        <div id="light-audio-send"
+             style="width: 30px; height: 30px; border-radius: 50%;
+                    background-color: red; cursor: pointer;">
+        </div>
+        <p>Audio Send</p>
+      </div>
+    </div>
+  </div>
+
+<script src="shared.js" defer></script>
+<script>
+  function getUserIdFromUrl(){
+    const params = new URLSearchParams(window.location.search);
+    return params.get('userId') || "Unknown"
+  }
+  window.audioApp = {
+    userId: getUserIdFromUrl(),
+    wsAudioStream: null,
+    wsAudioSend: null,
+    audioContext: null,
+    analyser: null,
+    dataArray: null,
+    audioSource: null,
+    processorNode: null,
+    mediaStream: null
+  };
+</script>
+  <script src="audioRecorder.js" defer></script>
+  <script src="audioPlayer.js" defer></script>
+</body>
+</html>
+

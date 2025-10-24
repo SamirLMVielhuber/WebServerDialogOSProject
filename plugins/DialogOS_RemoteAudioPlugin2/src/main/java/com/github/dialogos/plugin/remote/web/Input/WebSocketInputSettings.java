@@ -3,6 +3,7 @@ package com.github.dialogos.plugin.remote.web.Input;
 import com.clt.dialogos.plugin.PluginRuntime;
 import com.clt.dialogos.plugin.PluginSettings;
 import com.clt.diamant.IdMap;
+import com.clt.diamant.graph.Graph;
 import com.clt.properties.DefaultIntegerProperty;
 import com.clt.xml.XMLReader;
 import com.clt.xml.XMLWriter;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class WebSocketInputSettings extends PluginSettings {
+    private static final String INPUT_PORT = "INPUT_PORT";
     DefaultIntegerProperty port;
 
     public WebSocketInputSettings() {
@@ -21,12 +23,20 @@ public class WebSocketInputSettings extends PluginSettings {
 
     @Override
     public void writeAttributes(XMLWriter out, IdMap uidMap) {
-        //TODO
+        //TODO if this is 0, What to do?
+        if (this.port.getValue() != 0){
+            Graph.printAtt(out, INPUT_PORT, this.port.getValue());
+            System.out.println("Wrote Input Port to XML-File");
+        }
     }
 
     @Override
     protected void readAttribute(XMLReader r, String name, String value, IdMap uid_map) throws SAXException {
-        //TODO
+        //TODO if this can not be Read, What todo?
+        if(name.equals(INPUT_PORT)){
+            this.port.setValueFromString(value);
+            System.out.println("Read Input Port from XML-File " + this.port.getValue());
+        }
     }
 
     @Override

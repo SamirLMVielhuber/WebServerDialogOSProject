@@ -17,7 +17,6 @@ public class TestAudioServer {
         int port = 8080;
         Server server = new Server(port);
 
-        // === STATIC FILES (index.html etc.) ===
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(false);
 
@@ -26,30 +25,26 @@ public class TestAudioServer {
         ContextHandler staticContext = new ContextHandler("/");
         staticContext.setHandler(resourceHandler);
 
-        // === SERVLETS ===
         ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         servletContext.setContextPath("/");
         servletContext.addServlet(new ServletHolder(new DialogLoadServlet()), "/load");
 
-        // === WebSockets ===
         JettyWebSocketServletContainerInitializer.configure(servletContext, (context, container) -> {
             container.addMapping("/audio-stream", AudioWebSocketSender.class);
             container.addMapping("/audio-receive", WebSocketAudioReceiver.class);
         });
 
-        // === Combine ===
         HandlerList handlers = new HandlerList();
         handlers.addHandler(staticContext);
         handlers.addHandler(servletContext);
 
         server.setHandler(handlers);
 
-        // === Start Server ===
         server.start();
-        System.out.println("✅ Server running at http://localhost:" + port);
-        System.out.println("📡 WebSocket endpoints:");
-        System.out.println("   ws://localhost:" + port + "/audio-stream");
-        System.out.println("   ws://localhost:" + port + "/audio-receive");
+        System.out.println("Server running at http://localhost:" + port);
+        System.out.println("WebSocket endpoints:");
+        System.out.println("     ws://localhost:" + port + "/audio-stream");
+        System.out.println("     ws://localhost:" + port + "/audio-receive");
         server.join();
     }
 }

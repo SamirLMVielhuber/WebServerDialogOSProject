@@ -3,6 +3,7 @@ package com.github.dialogos.plugin.remote.web.Output;
 import com.clt.dialogos.plugin.PluginRuntime;
 import com.clt.dialogos.plugin.PluginSettings;
 import com.clt.diamant.IdMap;
+import com.clt.diamant.graph.Graph;
 import com.clt.properties.DefaultIntegerProperty;
 import com.clt.xml.XMLReader;
 import com.clt.xml.XMLWriter;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class WebSocketOutputSettings extends PluginSettings {
+    private static final String OUTPUT_PORT = "OUTPUT_PORT";
     DefaultIntegerProperty port;
 
     public WebSocketOutputSettings() {
@@ -21,12 +23,18 @@ public class WebSocketOutputSettings extends PluginSettings {
 
     @Override
     public void writeAttributes(XMLWriter out, IdMap uidMap) {
-        //TODO
+        if (this.port.getValue() != 0){
+            Graph.printAtt(out, OUTPUT_PORT, this.port.getValue());
+            System.out.println("Wrote Output Port to XML-File");
+        }
     }
 
     @Override
     protected void readAttribute(XMLReader r, String name, String value, IdMap uid_map) throws SAXException {
-        //TODO
+        if(name.equals(OUTPUT_PORT)){
+            this.port.setValueFromString(value);
+            System.out.println("Read Output Port from XML-File " + this.port.getValue());
+        }
     }
 
     @Override

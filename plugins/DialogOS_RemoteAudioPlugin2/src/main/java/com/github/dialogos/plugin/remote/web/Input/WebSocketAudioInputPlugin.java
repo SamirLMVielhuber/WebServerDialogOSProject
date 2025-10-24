@@ -10,6 +10,7 @@ import java.io.InputStream;
 public class WebSocketAudioInputPlugin implements AudioPlugin{
 
     private WebSocketInputStream inputStream;
+    private WebSocketInputSettings settings;
 
     @Deprecated
     private AudioReceiver receiver;
@@ -65,7 +66,8 @@ public class WebSocketAudioInputPlugin implements AudioPlugin{
 
     @Override
     public PluginSettings createDefaultSettings(){
-        return new WebSocketInputSettings();
+        this.settings = new WebSocketInputSettings();
+        return this.settings;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class WebSocketAudioInputPlugin implements AudioPlugin{
     }
 
     public void receiveAudio(byte[] data){
-        System.out.println("Received Audio");
+        //System.out.println("Received Audio");
         if(inputStream != null){
             inputStream.addAudioData(data);
         }

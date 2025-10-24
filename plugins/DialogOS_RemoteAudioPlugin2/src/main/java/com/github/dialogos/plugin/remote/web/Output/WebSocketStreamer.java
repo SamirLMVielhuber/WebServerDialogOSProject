@@ -1,4 +1,4 @@
-package com.github.dialogos.plugin.remote.web;
+package com.github.dialogos.plugin.remote.web.Output;
 
 import com.clt.audio.AudioResampler;
 

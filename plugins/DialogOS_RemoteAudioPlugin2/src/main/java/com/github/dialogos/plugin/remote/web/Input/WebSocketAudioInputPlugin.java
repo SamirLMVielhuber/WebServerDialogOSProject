@@ -1,4 +1,4 @@
-package com.github.dialogos.plugin.remote.web;
+package com.github.dialogos.plugin.remote.web.Input;
 
 import com.clt.dialogos.plugin.AudioPlugin;
 import com.clt.dialogos.plugin.PluginSettings;
@@ -60,11 +60,12 @@ public class WebSocketAudioInputPlugin implements AudioPlugin{
     @Override
     public void initialize(){
         inputStream = new WebSocketInputStream();
+
     }
 
     @Override
     public PluginSettings createDefaultSettings(){
-        return new Settings();
+        return new WebSocketInputSettings();
     }
 
     @Override

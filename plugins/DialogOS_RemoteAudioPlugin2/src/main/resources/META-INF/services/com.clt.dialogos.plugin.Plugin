@@ -1,2 +1,2 @@
-com.github.dialogos.plugin.remote.web.WebSocketAudioOutputPlugin
-com.github.dialogos.plugin.remote.web.WebSocketAudioInputPlugin
+com.github.dialogos.plugin.remote.web.Output.WebSocketAudioOutputPlugin
+com.github.dialogos.plugin.remote.web.Input.WebSocketAudioInputPlugin

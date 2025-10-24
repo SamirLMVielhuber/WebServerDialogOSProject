@@ -141,3 +141,6 @@ shadowJar {
     mergeServiceFiles()
 }
 
+ext {
+    jettyVersion = '11.0.22'
+}

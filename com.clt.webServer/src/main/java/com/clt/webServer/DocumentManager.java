@@ -14,8 +14,8 @@ import com.clt.dialogos.plugin.AudioPlugin;
 import com.clt.diamant.Document;
 
 import com.clt.event.ProgressListener;
-import com.github.dialogos.plugin.remote.web.WebSocketAudioInputPlugin;
-import com.github.dialogos.plugin.remote.web.WebSocketAudioOutputPlugin;
+import com.github.dialogos.plugin.remote.web.Input.WebSocketAudioInputPlugin;
+import com.github.dialogos.plugin.remote.web.Output.WebSocketAudioOutputPlugin;
 
 
 public class DocumentManager{

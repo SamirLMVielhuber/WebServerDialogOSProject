@@ -1,4 +1,4 @@
-package com.github.dialogos.plugin.remote.web;
+package com.github.dialogos.plugin.remote.web.Output;
 
 import com.clt.dialogos.plugin.AudioPlugin;
 import com.clt.dialogos.plugin.PluginSettings;
@@ -10,7 +10,7 @@ import java.io.IOException;
 public class WebSocketAudioOutputPlugin implements AudioPlugin {
     private String userId;
     private AudioCallback callback;
-    private Settings settings;
+    private WebSocketOutputSettings settings;
     private WebSocketStreamer currentStreamer = null;
 
     public interface AudioCallback {
@@ -81,7 +81,7 @@ public class WebSocketAudioOutputPlugin implements AudioPlugin {
 
     @Override
     public PluginSettings createDefaultSettings() { 
-        this.settings = new Settings();
+        this.settings = new WebSocketOutputSettings();
         return this.settings; 
     }
 }

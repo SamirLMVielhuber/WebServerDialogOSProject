@@ -1,4 +1,4 @@
-package com.github.dialogos.plugin.remote.web;
+package com.github.dialogos.plugin.remote.web.Input;
 
 import java.io.IOException;
 import java.io.InputStream;

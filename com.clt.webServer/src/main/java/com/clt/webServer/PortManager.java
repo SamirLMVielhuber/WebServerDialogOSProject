@@ -22,16 +22,16 @@ public class PortManager {
         return INSTANCE;
     }
 
-    public synchronized int assignPort(String graphLabel, int requestedPort) {
+    public synchronized int assignPort(String idandSuffix, int requestedPort) {
         //Looks up if the Port is already in use and searches for a better one
         if (!usedPorts.containsKey(requestedPort) && isPortAvailable(requestedPort)) {
-            usedPorts.put(requestedPort, graphLabel);
+            usedPorts.put(requestedPort, idandSuffix);
             return requestedPort;
         }
 
         for (int port = BASE_PORT; port < MAX_PORT; port++) {
             if (!usedPorts.containsKey(port) && isPortAvailable(port)) {
-                usedPorts.put(port, graphLabel);
+                usedPorts.put(port, idandSuffix);
                 return port;
             }
         }
@@ -39,8 +39,11 @@ public class PortManager {
         throw new RuntimeException("No available ports found!");
     }
 
-    public synchronized void releasePorts(String graphIdPrefix) {
-        usedPorts.entrySet().removeIf(e -> e.getValue().startsWith(graphIdPrefix));
+    public synchronized void releasePorts(String userId) {
+        //TODOSamir this is unsafe i guess i mean should be fine for now but releasing a port if the UserId is inside another UserId idk about that one....
+        usedPorts.entrySet().removeIf(e -> e.getValue().startsWith(userId));
+        System.out.println("Released Ports for " + userId);
+        System.out.flush();
     }
 
     public int findAvailablePort() {

@@ -14,11 +14,11 @@ import com.clt.dialogos.plugin.PluginManager;
 import com.clt.diamant.Document;
 
 import com.clt.event.ProgressListener;
+import com.clt.webServer.DocumentBase.DocumentPostProcessor;
 import com.github.dialogos.plugin.remote.web.Input.WebSocketAudioInputPlugin;
 import com.github.dialogos.plugin.remote.web.Output.WebSocketAudioOutputPlugin;
 
 import edu.cmu.lti.dialogos.sphinx.client.Sphinx;
-import edu.cmu.lti.dialogos.sphinx.plugin.SphinxNode;
 
 public class DocumentManager{
     public enum Status{
@@ -60,19 +60,17 @@ public class DocumentManager{
         pm.setActiveAudioOutputPlugin(output);
 
         Sphinx recognizer = new Sphinx();
-        recognizer.setAudioInputPlugin(input);
-        for (Node node : this.document.getOwnedGraph().getNodes()) {
-            if (node instanceof SphinxNode) {
-                ((SphinxNode) node).setRecognizer(recognizer);
-                System.out.println("DocumentManager: Bound recognizer to " + node.getTitle());
-                System.out.flush();
-            }
-        }
+        DocumentPostProcessor.bindRecognizers(this.document, recognizer);
     }
 
-    //TODO close the server...
+    //TODOSamir close the server...
     public void closeGraph(){
-        return;
+        if (this.document != null) {
+            System.out.println("Release Devices");
+            this.document.closeDevices();
+
+            System.out.flush();
+        }
     }
 
     public void startGraph(){

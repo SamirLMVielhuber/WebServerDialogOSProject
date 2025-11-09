@@ -39,9 +39,10 @@ public class ConnectionManager {
             public void onStopRequested(String userId) {
                 DocumentManager doc = ConnectionManager.getGraphManager(userId);
                 if (doc != null) {
-                    System.out.println("GraphControlRegistry: Stopping Graph " + doc.getGraphName());
+                    System.out.println("GraphControlRegistry: Stopping Graph " + doc.getGraphName() + " for User: " + userId);
+                    System.out.flush();
                     doc.closeGraph();
-                    //TODOSAMIR Delete Port entries here...
+                    PortManager.getInstance().releasePorts(userId);
                 }
                 System.out.flush();
             }

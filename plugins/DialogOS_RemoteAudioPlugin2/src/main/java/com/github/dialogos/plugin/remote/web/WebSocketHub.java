@@ -45,6 +45,7 @@ public class WebSocketHub {
         HubRegistry.registerHub(port, this);
 
         System.out.println("WebSocketHub: started on port " + port);
+        System.out.flush();
     }
 
     public void stop() throws Exception {
@@ -53,6 +54,7 @@ public class WebSocketHub {
             server.stop();
             server = null;
             System.out.println("WebSocketHub: stopped on port " + port);
+            System.out.flush();
         }
     }
 

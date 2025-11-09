@@ -21,9 +21,9 @@ public class AudioWebSocketStreamer {
     public void onConnect(Session session) {
         userId = extractUserId(session);
         int localPort = ((java.net.InetSocketAddress) session.getLocalAddress()).getPort();
-        hub = HubRegistry.getHub(localPort);
+        this.hub = HubRegistry.getHub(localPort);
 
-        if (hub == null) {
+        if (this.hub == null) {
             System.err.println("AudioWebSocketSender: no hub for port " + localPort);
             System.out.flush();
             return;
@@ -32,14 +32,14 @@ public class AudioWebSocketStreamer {
         if (userId == null) 
             userId = "unknown";
         
-        hub.registerOutputSession(userId, session);
+        this.hub.registerOutputSession(userId, session);
         System.out.println("AudioWebSocketSender: /audio-stream connected for userId=" + userId + " on port " + localPort);
         System.out.flush();
     }
 
     @OnWebSocketMessage
-    public void onText(Session session, String message) {
-        if (hub == null || userId == null){
+    public void onText(Session session, String message) throws Exception {
+        if (this.hub == null || userId == null){
             System.out.println("AudioWebSocketStreamer: hub or userId are null, \n    so no flow control possible");
             return;
         }
@@ -62,6 +62,8 @@ public class AudioWebSocketStreamer {
                 break;
             case "PAUSE_GRAPH":
                 listener.onPauseRequested(userId);
+                this.hub.stop();
+                this.hub.unregisterInputSession(userId);
                 break;
             default:
                 break;

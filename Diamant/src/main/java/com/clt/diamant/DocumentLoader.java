@@ -132,6 +132,14 @@ public class DocumentLoader {
                         }
                         
                         DocumentLoader.this.d.load(LoadingAction.this.f, LoadingAction.this.r);
+                    } else if (name.equals("web")) {
+                        if (DocumentLoader.this.d == null) {
+                            DocumentLoader.this.d = new WebSingleDocument();
+                        } else if (!(DocumentLoader.this.d instanceof WebSingleDocument)) {
+                            LoadingAction.this.r.raiseException(Resources.getString("DocumentTypeChanged"));
+                        }
+                        
+                        DocumentLoader.this.d.load(LoadingAction.this.f, LoadingAction.this.r);
                     } else {
                         LoadingAction.this.r.raiseException(Resources.getString("UnknownDocumentType"));
                     }

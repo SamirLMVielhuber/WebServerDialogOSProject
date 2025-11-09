@@ -4,11 +4,8 @@ import java.util.*;
 
 import com.clt.webServer.ConfigReader;
 import com.clt.webServer.ConnectionManager;
-import com.clt.webServer.WebSockets.AudioWebSocketSender;
 import com.google.gson.Gson;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -35,7 +32,6 @@ public class DialogLoadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         String userId = req.getParameter("userId");
         String graphName = req.getParameter("graphName");
 
@@ -49,22 +45,20 @@ public class DialogLoadServlet extends HttpServlet {
             String path = configReader.getDocumentPath(graphName);
             if (path == null)
                 throw new IllegalArgumentException("No document found for graphName: " + graphName);
-            
 
-            ConnectionManager.getInstance().openConnection(userId, path,
-                (uid, audioData) -> {
-                    try{
-                        AudioWebSocketSender.sendToUser(uid, ByteBuffer.wrap(audioData));
-                    }catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            
-            ConnectionManager.getInstance().getGraphManager(userId).printGraph();
-            
+            ConnectionManager.getInstance().openConnection(userId, path);
+
+            //ConnectionManager.getGraphManager(userId).printGraph();
+
+            int inputPort = ConnectionManager.getGraphManager(userId).getInputPort();
+            int outputPort = ConnectionManager.getGraphManager(userId).getOutputPort();
+
+            System.out.println("Sending ports to Website: " + inputPort + "\n" + outputPort);
+            System.out.flush();
             resp.setContentType("application/json");
             resp.getWriter().write(new Gson().toJson(
-                Map.of("status", "ok", "userId", userId, "graphName", graphName)
+                Map.of("status", "ok", "userId", userId, "graphName", graphName, "inputPort", inputPort,
+                "outputPort", outputPort)
             ));
         } catch (Exception e) {
             resp.setStatus(500);

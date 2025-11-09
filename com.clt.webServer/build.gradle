@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass = 'com.clt.web2.ServerMain'
+    //mainClass = 'com.clt.web2.ServerMain'
 }
 
 dependencies {
@@ -13,13 +13,16 @@ dependencies {
     implementation project(':com.clt.xml')
     implementation project(':com.clt.audio')
     implementation project(':com.clt.script')
-    
+    implementation project(':com.clt.speech')
+    implementation project(':ClientInterface')
+
     implementation "org.eclipse.jetty.websocket:websocket-jetty-server:11.0.18"
     implementation "org.eclipse.jetty.websocket:websocket-jetty-api:11.0.18"
-    implementation 'org.eclipse.jetty:jetty-server:11.0.22'
-    implementation 'org.eclipse.jetty:jetty-servlet:11.0.22'
-    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation "org.eclipse.jetty:jetty-server:11.0.22"
+    implementation "org.eclipse.jetty:jetty-servlet:11.0.22"
+    implementation "jakarta.servlet:jakarta.servlet-api:5.0.0"
+    implementation "com.google.code.gson:gson:2.10.1"
+    implementation "org.eclipse.jetty.websocket:websocket-jetty-client:11.0.22"
 
     implementation project(':plugins:DialogOS_RemoteAudioPlugin2')
     implementation project(':plugins:DialogOS_MaryTTSPlugin')

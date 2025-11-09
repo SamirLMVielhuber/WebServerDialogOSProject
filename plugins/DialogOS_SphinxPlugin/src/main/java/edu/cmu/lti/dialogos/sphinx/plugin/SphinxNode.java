@@ -15,6 +15,7 @@ import java.util.List;
 public class SphinxNode extends AbstractInputNode {
 
     private static Device sphinxDevice = new Device(Resources.getString("Sphinx"));
+    private Sphinx recognizer = null;
 
     @Override
     public AudioFormat getAudioFormat() {
@@ -22,7 +23,15 @@ public class SphinxNode extends AbstractInputNode {
     }
 
     private Sphinx getRecognizer() {
+        if(this.recognizer != null)
+            return this.recognizer;
         return Plugin.getRecognizer();
+    }
+
+    public void setRecognizer(Sphinx recognizer){
+        System.out.println("SphinxNode" + this.hashCode() + ": Setting Recognizer to " + recognizer);
+        System.out.flush();
+        this.recognizer = recognizer;
     }
 
     @Override
@@ -41,6 +50,10 @@ public class SphinxNode extends AbstractInputNode {
             // Set audioInputPlugin here, so that the sphinx recognizer can use it for the speech recognition
             // also the node has information about the singledocument
             sphinx.setAudioInputPlugin(getGraph().getOwner().getPluginManager().getActiveAudioInputPlugin());
+            System.out.println("SphinxNode"+ this.hashCode()+": Using Recogniser: " + sphinx);
+            System.out.println("    With Plugin " + getGraph().getOwner().getPluginManager().getActiveAudioInputPlugin());
+            System.out.flush();
+
             return new SphinxRecognitionExecutor(sphinx);
         }
     }

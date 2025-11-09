@@ -270,7 +270,7 @@ public class SingleDocument extends Document implements GraphOwner {
 
     private Map<Class<? extends Plugin>, PluginSettings> pluginSettings;
     private Collection<Device> devices;
-    private PluginManager pluginManager;
+    public PluginManager pluginManager;
 
     private Map<String, TemplateBundle> localizationBundles;
 

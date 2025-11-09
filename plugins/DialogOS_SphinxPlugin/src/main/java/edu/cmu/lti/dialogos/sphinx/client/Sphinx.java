@@ -29,6 +29,8 @@ public class Sphinx extends SphinxBaseRecognizer {
     private AudioPlugin audioInputPlugin;
 
     public Sphinx() {
+        System.out.println("Sphinx got created");
+        System.out.flush();
         languageSettings = SphinxLanguageSettings.createDefault();
         /* addRecognizerListener(evt -> {
             System.err.println("DialogOS recognizer listener defined in Sphinx.java: " + evt.toString());
@@ -55,6 +57,32 @@ public class Sphinx extends SphinxBaseRecognizer {
             throw new RuntimeException(e);
         }
         context.setAudioInputPlugin(audioInputPlugin);
+        
+        //  Currently Node gets Recognizer from Plugin statically.
+        //      => Seems like there can only be one Recognizer for all nodes no matter the document they exist in
+        //  How can we achieve that multiple Recognizer exist, depending on the userId
+        //      or one Recognizer that can stream the data that is wanted by the node for the userId to it
+        //      1. Different Sphinx one per Document:
+        //          Currently:
+        //              Sphinx is basically created once but not per Plugin like this:
+        //                  private static class SphinxHolder {
+        //                      static final Sphinx SPHINX = new Sphinx();
+        //                  }
+
+        //               public static Sphinx getRecognizer() {
+        //                  return SphinxHolder.SPHINX;
+        //               }
+        //              In Plugin
+        //          Pro's:
+        //              There already is a different Sphinxnode per document, therefore actually one would only need to create Sphinx per Node maybe if nessecary
+        //          Problem's: 
+        //              I am not sure maybe every Sphinxnode would create its own Plugin
+        //                  => one would maybe need to modify that approach and make the node aware of some userId or something
+        //                      then the SphinxNode could maybe call the getRecognizer(userId) and the recognizer maybe get the right Sphinx instance
+
+        //      2. Sphinx
+
+
         csr = context.getRecognizer();
         context.getVadListener().setRecognizer(this);
         vadInSpeech = false;

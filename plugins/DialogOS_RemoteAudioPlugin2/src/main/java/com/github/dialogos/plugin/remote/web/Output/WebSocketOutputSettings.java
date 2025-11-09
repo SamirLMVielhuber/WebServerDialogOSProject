@@ -7,6 +7,7 @@ import com.clt.diamant.graph.Graph;
 import com.clt.properties.DefaultIntegerProperty;
 import com.clt.xml.XMLReader;
 import com.clt.xml.XMLWriter;
+import com.github.dialogos.plugin.remote.web.Output.WebSocketAudioOutputPlugin.ServerControl;
 
 import org.xml.sax.SAXException;
 
@@ -16,9 +17,11 @@ import java.awt.*;
 public class WebSocketOutputSettings extends PluginSettings {
     private static final String OUTPUT_PORT = "OUTPUT_PORT";
     DefaultIntegerProperty port;
+    private ServerControl serverControl;
 
-    public WebSocketOutputSettings() {
+    public WebSocketOutputSettings(ServerControl control) {
         this.port = new DefaultIntegerProperty("Port" , "Port", null, 8080);
+        this.serverControl = control;
     }
 
     @Override
@@ -47,6 +50,23 @@ public class WebSocketOutputSettings extends PluginSettings {
         gbc.insets = new Insets(2, 3, 2, 3);
 
         port.addToPanel(p, gbc, false);
+
+        gbc.gridy++;
+        JButton startButton = new JButton("Start Server");
+        JButton stopButton = new JButton("Stop Server");
+
+        startButton.addActionListener(e -> {
+            if (serverControl != null) 
+                serverControl.startServer();
+        });
+        stopButton.addActionListener(e -> {
+            if (serverControl != null) 
+                serverControl.stopServer();
+        });
+
+        p.add(startButton, gbc);
+        gbc.gridy++;
+        p.add(stopButton, gbc);
 
         // make editor components stick to top of window
         JPanel superpanel = new JPanel(new BorderLayout());

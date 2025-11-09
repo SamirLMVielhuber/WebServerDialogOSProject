@@ -20,18 +20,22 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function connectAudioSendWebSocket() {
-    logStatus("Connecting to audio-receive WebSocket...");
-    const ws = new WebSocket(`ws://localhost:8080/audio-receive?userId=${encodeURIComponent(window.audioApp.userId)}`);
+    const port = window.audioApp.inputPort;
+    logStatus("Connecting to audio-receive WebSocket...\n   to Port" + port);
+    const ws = new WebSocket(`ws://localhost:${port}/audio-receive?userId=${encodeURIComponent(window.audioApp.userId)}`);
+
     ws.binaryType = "arraybuffer";
     window.audioApp.wsAudioSend = ws;
 
     ws.onopen = () => {
       logStatus("Audio-send WebSocket connected");
+      logStatus("Port: " + port);
       setLight("light-audio-send", "green");
     };
 
     ws.onerror = (e) => {
       logStatus("Audio-send WebSocket error: " + (e.message || e));
+      logStatus("Port: " + port);
       setLight("light-audio-send", "red");
     };
 

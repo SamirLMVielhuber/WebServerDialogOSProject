@@ -1,4 +1,4 @@
-package com.clt.diamant;
+package com.clt.diamant.web;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -24,6 +24,20 @@ import org.xml.sax.SAXException;
 import com.clt.dialog.client.ConnectionChooser;
 import com.clt.dialog.client.Connector;
 import com.clt.dialog.client.ServerDevice;
+import com.clt.diamant.Device;
+import com.clt.diamant.DeviceAwareEnvironment;
+import com.clt.diamant.Document;
+import com.clt.diamant.ExecutionLogger;
+import com.clt.diamant.ExecutionResult;
+import com.clt.diamant.ExecutionStoppedException;
+import com.clt.diamant.Grammar;
+import com.clt.diamant.IdMap;
+import com.clt.diamant.InputCenter;
+import com.clt.diamant.Mapping;
+import com.clt.diamant.Preferences;
+import com.clt.diamant.Resources;
+import com.clt.diamant.Slot;
+import com.clt.diamant.WozInterface;
 import com.clt.diamant.graph.Graph;
 import com.clt.diamant.graph.GraphOwner;
 import com.clt.diamant.graph.Node;
@@ -332,7 +346,7 @@ public class WebSingleDocument extends Document implements GraphOwner {
     }
 
     public String getDocumentType() {
-        return "Web";
+        return "wizard";
     }
 
     /**

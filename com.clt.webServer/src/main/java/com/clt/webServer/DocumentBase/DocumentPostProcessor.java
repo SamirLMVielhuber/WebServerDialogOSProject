@@ -1,6 +1,6 @@
 package com.clt.webServer.DocumentBase;
 
-import com.clt.diamant.WebSingleDocument;
+import com.clt.diamant.web.WebSingleDocument;
 
 import edu.cmu.lti.dialogos.sphinx.client.Sphinx;
 import edu.cmu.lti.dialogos.sphinx.plugin.SphinxNode;

@@ -1,4 +1,4 @@
-package com.clt.diamant;
+package com.clt.diamant.web;
 
 import javax.swing.JComponent;
 

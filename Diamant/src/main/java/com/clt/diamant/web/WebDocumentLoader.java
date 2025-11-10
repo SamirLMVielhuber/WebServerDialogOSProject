@@ -1,4 +1,4 @@
-package com.clt.diamant;
+package com.clt.diamant.web;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,44 +7,33 @@ import java.lang.reflect.InvocationTargetException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.clt.diamant.Document;
+import com.clt.diamant.DocumentLoader;
+import com.clt.diamant.Resources;
 import com.clt.event.ProgressEvent;
 import com.clt.event.ProgressListener;
 import com.clt.gui.ProgressDialog;
 import com.clt.util.DefaultLongAction;
-import com.clt.util.LongAction;
 import com.clt.xml.AbstractHandler;
 import com.clt.xml.XMLProgressListener;
 import com.clt.xml.XMLReader;
 
-public class DocumentLoader {
+/**
+    This Accepts all Documents marked with Wizard so SingleDocument but loads them as WebSingleDocument
+ */
+public class WebDocumentLoader extends DocumentLoader {
 
-    private Document d;
-
-    protected Document getDocument() {
-        return d;
+    public WebDocumentLoader(Document d) {
+        super(d);
     }
 
-    protected void setDocument(Document d) {
-        this.d = d;
-    }
-    
-    public DocumentLoader(Document d) {
-        this.d = d;
-    }
-
-    /**
-     * Loads a new document from a file.
-     *
-     * @param f        File to load
-     * @param progress ProgressListener
-     * @return The document obtained by loading the file.
-     */
+    @Override
     public Document load(final File f, ProgressListener progress) throws IOException {
         final XMLReader r = new XMLReader(Document.validateXML);
-        
+
         try {
             String description = Resources.format("Loading", f.getName());
-            LongAction loading = new LoadingAction(description, r, f);
+            WebLoadingAction loading = new WebLoadingAction(description, r, f);
 
             if (progress == null) {
                 try {
@@ -75,23 +64,24 @@ public class DocumentLoader {
             } else {
                 throw new IOException(exn.getTargetException().toString());
             }
-        } catch (IOException|RuntimeException exn) {
+        } catch (IOException | RuntimeException exn) {
             throw exn;
         } catch (Exception exn) {
             throw new IOException(exn.toString());
         }
-        return this.d;
+
+        return this.getDocument();
     }
 
     /**
-     * This Action loads a document and displays a progressbar while doing so.
+        Only supports WebSingleDocument under <wizard>.
      */
-    class LoadingAction extends DefaultLongAction {
+    class WebLoadingAction extends DefaultLongAction {
 
         private XMLReader r;
         private File f;
 
-        public LoadingAction(String description, XMLReader r, File f) {
+        public WebLoadingAction(String description, XMLReader r, File f) {
             super(description);
             this.r = r;
             this.f = f;
@@ -100,51 +90,33 @@ public class DocumentLoader {
         @Override
         public void run(final ProgressListener l) throws IOException {
             if (l != null) {
-                final ProgressEvent evt = new ProgressEvent(DocumentLoader.this, this.getDescription() + "...", 0, 400, 0);
+                final ProgressEvent evt = new ProgressEvent(WebDocumentLoader.this, this.getDescription() + "...", 0, 400, 0);
                 XMLProgressListener progress = new XMLProgressListener() {
-
                     public void percentComplete(float percent) {
                         evt.setCurrent((int) (evt.getEnd() * percent));
-                        // invoked because progress was made.
                         l.progressChanged(evt);
                     }
                 };
                 this.r.addProgressListener(progress);
             }
-            
+
             this.r.parse(this.f, new AbstractHandler() {
                 @Override
                 public void start(String name, Attributes atts) throws SAXException {
                     if (name.equals("wizard")) {
-                        if (DocumentLoader.this.d == null) {
-                            DocumentLoader.this.d = new SingleDocument();
-                        } else if (!(DocumentLoader.this.d instanceof SingleDocument)) {
-                            LoadingAction.this.r.raiseException(Resources.getString("DocumentTypeChanged"));
+                        if (WebDocumentLoader.this.getDocument() == null) {
+                            WebDocumentLoader.this.setDocument(new WebSingleDocument());
+                        } else if (!(WebDocumentLoader.this.getDocument() instanceof WebSingleDocument)) {
+                            r.raiseException(Resources.getString("DocumentTypeChanged"));
                         }
-                        
-                        // here a new start node is created
-                        DocumentLoader.this.d.load(LoadingAction.this.f, LoadingAction.this.r);
-                    } else if (name.equals("log")) {
-                        if (DocumentLoader.this.d == null) {
-                            DocumentLoader.this.d = new LogDocument();
-                        } else if (!(DocumentLoader.this.d instanceof LogDocument)) {
-                            LoadingAction.this.r.raiseException(Resources.getString("DocumentTypeChanged"));
-                        }
-                        
-                        DocumentLoader.this.d.load(LoadingAction.this.f, LoadingAction.this.r);
-                    } else if (name.equals("experiment")) {
-                        if (DocumentLoader.this.d == null) {
-                            DocumentLoader.this.d = new MultiDocument();
-                        } else if (!(DocumentLoader.this.d instanceof MultiDocument)) {
-                            LoadingAction.this.r.raiseException(Resources.getString("DocumentTypeChanged"));
-                        }
-                        
-                        DocumentLoader.this.d.load(LoadingAction.this.f, LoadingAction.this.r);
+                        WebDocumentLoader.this.getDocument().load(WebLoadingAction.this.f, WebLoadingAction.this.r);
                     } else {
-                        LoadingAction.this.r.raiseException(Resources.getString("UnknownDocumentType"));
+                        // Reject all other types
+                        r.raiseException(Resources.getString("UnknownDocumentType"));
                     }
                 }
             });
         }
     }
 }
+

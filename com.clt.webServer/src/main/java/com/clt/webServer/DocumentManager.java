@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.clt.diamant.WebSingleDocument;
 import com.clt.diamant.WozInterface;
 import com.clt.diamant.graph.*;
-import com.clt.diamant.DocumentLoader;
+import com.clt.diamant.web.WebDocumentLoader;
+import com.clt.diamant.web.WebSingleDocument;
 import com.clt.diamant.Executer;
 import com.clt.dialogos.plugin.AudioPlugin;
 import com.clt.dialogos.plugin.PluginManager;
@@ -35,7 +35,7 @@ public class DocumentManager{
         this.userId = userId;
         System.out.println("DocumentManager: Loading File " + filePath +"\nfor User: " + userId);
 
-        DocumentLoader loader = new DocumentLoader(null);
+        WebDocumentLoader loader = new WebDocumentLoader(null);
         ProgressListener progress = event -> System.out.println(event.getMessage());
         progress = null;
         Document d;

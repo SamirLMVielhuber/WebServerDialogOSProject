@@ -13,6 +13,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 import com.clt.webServer.Servlets.DialogLoadServlet;
+import com.clt.webServer.Servlets.InfJsonServlet;
 import com.github.dialogos.plugin.remote.web.Manager;
 
 public class TestAudioServer {
@@ -52,6 +53,8 @@ public class TestAudioServer {
         ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         servletContext.setContextPath("/");
         servletContext.addServlet(new ServletHolder(new DialogLoadServlet()), "/load");
+        servletContext.addServlet(new ServletHolder(new InfJsonServlet()), "/inf.json");
+
 
         HandlerList handlers = new HandlerList();
         handlers.addHandler(staticContext);

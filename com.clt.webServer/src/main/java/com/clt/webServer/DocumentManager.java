@@ -61,6 +61,7 @@ public class DocumentManager{
 
         Sphinx recognizer = new Sphinx();
         DocumentPostProcessor.bindRecognizers(this.document, recognizer);
+        WebSingleDocument.printAllVariables(this.document.getOwnedGraph());
     }
 
     //TODOSamir close the server...

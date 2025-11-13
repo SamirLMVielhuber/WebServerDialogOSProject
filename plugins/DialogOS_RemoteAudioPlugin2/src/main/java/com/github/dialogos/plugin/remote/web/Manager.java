@@ -7,6 +7,7 @@ public class Manager {
     private static WebSocketHub globalHub;
     private static final Map<String, WebSocketHub> userHubs = new ConcurrentHashMap<>();
     private static boolean serverMode = false;
+    //TODOSamir look into where to add the IP adress... and if IPAdress is null maybe take the IPAdress from the AudioInput/Output Settings????
 
     public static void setServerMode(boolean isServerMode) {
         serverMode = isServerMode;

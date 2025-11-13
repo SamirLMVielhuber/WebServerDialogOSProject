@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.clt.dialogos.plugin.*;
 import com.clt.script.DefaultEnvironment;
@@ -42,6 +43,7 @@ import com.clt.diamant.graph.Graph;
 import com.clt.diamant.graph.GraphOwner;
 import com.clt.diamant.graph.Node;
 import com.clt.diamant.graph.Procedure;
+import com.clt.diamant.graph.nodes.GraphNode;
 import com.clt.diamant.graph.nodes.NodeExecutionException;
 import com.clt.diamant.graph.nodes.ProcNode;
 import com.clt.diamant.graph.search.NodeSearchFilter;
@@ -275,6 +277,16 @@ public class WebSingleDocument extends Document implements GraphOwner {
 
                         DeviceXMLHandler.this.graph.updateEdges();
                         WebSingleDocument.this.setGraph(DeviceXMLHandler.this.graph);
+                        
+                        WebSingleDocument.this.attachOwnersRecursively(DeviceXMLHandler.this.graph);
+                        
+                        System.out.println("After attachOwners: subgraph owner -> " + 
+                            DeviceXMLHandler.this.graph.getNodes().stream()
+                                .filter(n -> n instanceof GraphNode)
+                                .map(n -> ((GraphNode)n).getOwnedGraph())
+                                .filter(Objects::nonNull)
+                                .map(sub -> sub.getOwner())
+                                .collect(Collectors.toList()));
                     }
                 });
             }
@@ -847,5 +859,115 @@ public class WebSingleDocument extends Document implements GraphOwner {
 
     public Collection<SearchResult> find(NodeSearchFilter filter) {
         return this.graph.find(filter);
+    }
+
+    /**
+        After loading a graph into this document, call this to ensure every subgraph
+            has an owner which delegates plugin manager calls to this WebSingleDocument.
+            TODO Generally a stupid fix in my eyes but it works for now let someone else fix this, not my problem.
+     */
+    private void attachOwnersRecursively(Graph g) {
+        if (g == null) 
+            return;
+
+        // iterate nodes in this graph
+        for (Node n : new ArrayList<>(g.getNodes())) {
+            if (n instanceof GraphNode) {
+                GraphNode gn = (GraphNode) n;
+                Graph sub = gn.getOwnedGraph();
+                if (sub != null) {
+                    // create a GraphOwner delegating to this WebSingleDocument
+                    GraphOwner delegatingOwner = new GraphOwner() {
+
+                        @Override
+                        public Graph getSuperGraph() {
+                            return g;
+                        }
+
+                        @Override
+                        public Graph getOwnedGraph() {
+                            return sub;
+                        }
+
+                        @Override
+                        public Collection<Device> getDevices() {
+                            return WebSingleDocument.this.getDevices();
+                        }
+
+                        @Override
+                        public List<Grammar> getGrammars() {
+                            return WebSingleDocument.this.getGrammars();
+                        }
+
+                        @Override
+                        public PluginSettings getPluginSettings(Class<? extends Plugin> pluginClass) {
+                            return WebSingleDocument.this.getPluginSettings(pluginClass);
+                        }
+
+                        @Override
+                        public PluginManager getPluginManager() {
+                            return WebSingleDocument.this.getPluginManager();
+                        }
+
+                        @Override
+                        public Environment getEnvironment(boolean local) {
+                            return WebSingleDocument.this.getEnvironment(local);
+                        }
+
+                        @Override
+                        public void setDirty(boolean dirty) {
+                        }
+
+                        @Override
+                        public void export(Graph g, File f) throws IOException {
+                            WebSingleDocument.this.export(g, f);
+                        }
+
+                        @Override
+                        public String getGraphName() {
+                            return WebSingleDocument.this.getGraphName();
+                        }
+
+                        @Override
+                        public void setGraphName(String name) {
+                            WebSingleDocument.this.setGraphName(name);
+                        }
+                    };
+
+                    // attach the delegating owner to the subgraph
+                    sub.setOwner(delegatingOwner);
+
+                    // (Optional) if GraphNode itself needs an owner reference pointing to the document,
+                    // try to set it here if GraphNode has a setter (some APIs do):
+                    try {
+                        // reflectively set owner on GraphNode if method exists:
+                        java.lang.reflect.Method setOwnerMethod = null;
+                        try {
+                            setOwnerMethod = gn.getClass().getMethod("setOwner", GraphOwner.class);
+                        } catch (NoSuchMethodException ignore) {}
+                        if (setOwnerMethod != null) {
+                            setOwnerMethod.invoke(gn, WebSingleDocument.this);
+                        }
+                    } catch (Exception ex) {
+                        // not fatal: many implementations won't have setOwner; subgraph owner is the main fix.
+                        System.out.println("No owner Set: " + ex.getMessage());
+                    }
+
+                    attachOwnersRecursively(sub);
+                }
+            }
+        }
+    }
+
+    public static void printAllVariables(Graph g){
+        System.out.println("Graph Variables: ");
+        System.out.println(g.getVariables());
+        for(Node n: g.getNodes()){
+            if(n instanceof GraphNode){
+                System.out.println("Node is of Type GraphNode, looking for variables");
+                printAllVariables(((GraphNode) n).getOwnedGraph());
+            }
+        }
+        System.out.flush();
     }
 }

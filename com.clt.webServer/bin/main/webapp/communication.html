@@ -42,6 +42,7 @@
   <script>
     window.audioApp = {
       userId: null,
+      serverIP: null,
       inputPort: null,
       outputPort: null,
       wsAudioStream: null,
@@ -74,10 +75,11 @@
         Object.assign(window.audioApp, {
           userId: data.userId,
           inputPort: data.inputPort,
-          outputPort: data.outputPort
+          outputPort: data.outputPort,
+          serverIP: data.serverIP
         });
         console.log(
-          `✅ AudioApp ready: input=${data.inputPort}, output=${data.outputPort}`
+          `AudioApp ready: input=${data.inputPort}, output=${data.outputPort}, IPAdress=${data.ipAdress}`
         );
       }
     } catch (err) {

@@ -7,22 +7,33 @@
 </head>
 <body>
   <h1>Choose a Graph</h1>
-
-  <button onclick="loadGraph('test')">Test</button>
-  <button onclick="loadGraph('greeting')">Greeting</button>
-  <button onclick="loadGraph('advanced')">Advanced</button>
+  <div id="graph-buttons"></div>
 
   <script>
     function generateUserId() {
-      // Simple random userId, can be more complex
       return 'user-' + Math.floor(Math.random() * 100000);
     }
 
-    //This now only does redirection the calling of the DialogLoadServlet is now done in the communication.html
     function loadGraph(graphName) {
       const userId = generateUserId();
       window.location.href = `/communication.html?userId=${encodeURIComponent(userId)}&graphName=${encodeURIComponent(graphName)}`;
     }
+
+    //Dynamicall fetch the names
+    fetch('/inf.json')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('graph-buttons');
+        const docs = data.Documents;
+        console.log(docs)
+        Object.keys(docs).forEach(graphName => {
+          const button = document.createElement('button');
+          button.textContent = graphName.charAt(0).toUpperCase() + graphName.slice(1);
+          button.onclick = () => loadGraph(graphName);
+          container.appendChild(button);
+        });
+      })
+      .catch(err => console.error('Failed to load graph list:', err));
   </script>
 </body>
 </html>

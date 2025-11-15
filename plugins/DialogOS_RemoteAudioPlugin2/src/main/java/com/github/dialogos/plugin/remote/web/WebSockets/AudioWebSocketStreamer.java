@@ -13,13 +13,11 @@ import com.github.dialogos.plugin.remote.web.WebSocketHub;
 
 @WebSocket
 public class AudioWebSocketStreamer {
-
-    private String userId;
     private WebSocketHub hub;
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        userId = extractUserId(session);
+        String userId = extractUserId(session);
         int localPort = ((java.net.InetSocketAddress) session.getLocalAddress()).getPort();
         this.hub = HubRegistry.getHub(localPort);
 
@@ -28,9 +26,6 @@ public class AudioWebSocketStreamer {
             System.out.flush();
             return;
         }
-
-        if (userId == null) 
-            userId = "unknown";
         
         this.hub.registerOutputSession(userId, session);
         System.out.println("AudioWebSocketSender: /audio-stream connected for userId=" + userId + " on port " + localPort);
@@ -39,6 +34,7 @@ public class AudioWebSocketStreamer {
 
     @OnWebSocketMessage
     public void onText(Session session, String message) throws Exception {
+        String userId = extractUserId(session);
         if (this.hub == null || userId == null){
             System.out.println("AudioWebSocketStreamer: hub or userId are null, \n    so no flow control possible");
             return;
@@ -58,11 +54,11 @@ public class AudioWebSocketStreamer {
                 break;
             case "STOP_GRAPH":
                 listener.onStopRequested(userId);
-                //TODOSAMIR stop server for this port...
+                //TODO If Server empty this should then stop it and no user is using it
                 break;
             case "PAUSE_GRAPH":
                 listener.onPauseRequested(userId);
-                this.hub.stop();
+                //TODO If Server empty this should then stop it and no user is using it
                 this.hub.unregisterInputSession(userId);
                 break;
             default:
@@ -72,6 +68,7 @@ public class AudioWebSocketStreamer {
 
     @OnWebSocketClose
     public void onClose(Session session, int status, String reason) {
+        String userId = extractUserId(session);
         if (hub != null && userId != null) {
             hub.unregisterOutputSession(userId);
             System.out.println("AudioWebSocketSender: disconnected " + userId);

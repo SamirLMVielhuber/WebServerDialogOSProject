@@ -870,13 +870,13 @@ public class WebSingleDocument extends Document implements GraphOwner {
         if (g == null) 
             return;
 
-        // iterate nodes in this graph
+        //iterate nodes in this graph
         for (Node n : new ArrayList<>(g.getNodes())) {
             if (n instanceof GraphNode) {
                 GraphNode gn = (GraphNode) n;
                 Graph sub = gn.getOwnedGraph();
                 if (sub != null) {
-                    // create a GraphOwner delegating to this WebSingleDocument
+                    //create a GraphOwner delegating to this WebSingleDocument
                     GraphOwner delegatingOwner = new GraphOwner() {
 
                         @Override
@@ -934,13 +934,13 @@ public class WebSingleDocument extends Document implements GraphOwner {
                         }
                     };
 
-                    // attach the delegating owner to the subgraph
+                    //attach the delegating owner to the subgraph
                     sub.setOwner(delegatingOwner);
 
-                    // (Optional) if GraphNode itself needs an owner reference pointing to the document,
-                    // try to set it here if GraphNode has a setter (some APIs do):
+                    //if GraphNode itself needs an owner reference pointing to the document,
+                    //      try to set it here if GraphNode has a setter:
                     try {
-                        // reflectively set owner on GraphNode if method exists:
+                        //reflectively set owner on GraphNode if method exists:
                         java.lang.reflect.Method setOwnerMethod = null;
                         try {
                             setOwnerMethod = gn.getClass().getMethod("setOwner", GraphOwner.class);

@@ -111,6 +111,7 @@ public class DocumentManager{
             ((WebSocketAudioOutputPlugin) output).setUserId(userId);
     }
 
+    //This is from a time where it was possible to use a different port for input and output should be put on deprecated i guess and a new function that just sets both
     public void setInputPort(int port) { 
         AudioPlugin input = this.document.getPluginManager().getActiveAudioInputPlugin();
         if (input instanceof WebSocketAudioInputPlugin) {

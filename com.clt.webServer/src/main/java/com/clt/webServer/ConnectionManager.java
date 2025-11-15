@@ -74,39 +74,19 @@ public class ConnectionManager {
         gM.loadGraph(filePath, userId);
 
         int requestedInputPort = gM.getInputPort();
-        int requestedOutputPort = gM.getOutputPort();
 
-        System.out.println("ConnectionManager Wanted Port by Graph\n    Input:" + requestedInputPort + "\n    Output:" + requestedOutputPort);
+        System.out.println("ConnectionManager Wanted Port by Graph\n    Requested Port: " + requestedInputPort);
 
-        PortManager portManager = PortManager.getInstance();
+        PortManagerNew portManager = PortManagerNew.getInstance();
 
         //Try to assign the input port normally
-        int assignedInputPort = portManager.assignPort(userId + "_input", requestedInputPort);
-
-        int assignedOutputPort;
-
-        //Try to reuse the same port if wanted
-        if (assignedInputPort == requestedOutputPort && portManager.isPortAvailable(assignedInputPort)) {
-            assignedOutputPort = assignedInputPort;
-        } 
-        else {
-            //Try to assign the requested output port normally
-            assignedOutputPort = portManager.assignPort(userId + "_output", requestedOutputPort);
-
-            //If they differ and you want them unified, fallback to using the same one
-            if (assignedInputPort != assignedOutputPort) {
-                System.out.println("Different ports assigned (" + assignedInputPort + " / " + assignedOutputPort + "), trying same port fallback...");
-                int samePort = portManager.assignPort(userId + "_shared", assignedInputPort);
-                assignedInputPort = samePort;
-                assignedOutputPort = samePort;
-            }
-        }
+        int assignedInputPort = portManager.assignPort(userId, requestedInputPort);
 
         gM.setInputPort(assignedInputPort);
-        gM.setOutputPort(assignedOutputPort);
+        gM.setOutputPort(assignedInputPort);
 
-        System.out.println("Assigned ports for userId " + userId +
-                "\ninput: " + assignedInputPort + ", output: " + assignedOutputPort);
+        //This is a leftover from the way before where it was possible to use different ports for input and output
+        System.out.println("Assigned ports for userId " + userId +"\n    input: " + assignedInputPort + ", output: " + assignedInputPort);
         System.out.flush();
 
         connections.put(userId, gM);

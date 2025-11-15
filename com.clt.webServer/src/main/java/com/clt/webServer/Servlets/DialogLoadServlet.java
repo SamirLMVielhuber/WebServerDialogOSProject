@@ -18,16 +18,9 @@ public class DialogLoadServlet extends HttpServlet {
 
     private ConfigReader configReader;
 
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        try {
-            String configPath = "/inf.json";
-            configReader = new ConfigReader(getClass().getResourceAsStream(configPath));
-            System.out.println("Loaded config: " + configReader.getDocuments());
-        } catch (Exception e) {
-            throw new ServletException("Could not load config file", e);
-        }
+    private void printCurrentConfig(){
+        System.out.println("Loaded config: " + configReader.getDocuments());
+        System.out.flush();
     }
 
     @Override
@@ -42,6 +35,11 @@ public class DialogLoadServlet extends HttpServlet {
         }
 
         try {
+            String configPath = "/inf.json";
+            
+            configReader = new ConfigReader(getClass().getResourceAsStream(configPath));
+            printCurrentConfig();
+
             String path = configReader.getDocumentPath(graphName);
             if (path == null)
                 throw new IllegalArgumentException("No document found for graphName: " + graphName);
@@ -49,21 +47,28 @@ public class DialogLoadServlet extends HttpServlet {
             ConnectionManager.getInstance().openConnection(userId, path);
 
             //ConnectionManager.getGraphManager(userId).printGraph();
-
+            
+            //TODOSamir 
+            //      Send IP Adress maybe in the future you want to reroute or something idk... so for now it is hardcoded here
+            String ip = "someIP";
+            
             int inputPort = ConnectionManager.getGraphManager(userId).getInputPort();
             int outputPort = ConnectionManager.getGraphManager(userId).getOutputPort();
 
             System.out.println("Sending ports to Website: " + inputPort + "\n" + outputPort);
+            System.out.println("Sending ip adress to Website " + ip);
             System.out.flush();
+
             resp.setContentType("application/json");
             resp.getWriter().write(new Gson().toJson(
                 Map.of("status", "ok", "userId", userId, "graphName", graphName, "inputPort", inputPort,
-                "outputPort", outputPort)
+                "outputPort", outputPort, "serverIP", ip)
             ));
         } catch (Exception e) {
             resp.setStatus(500);
             resp.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
             e.printStackTrace();
+            throw new ServletException("Could not load config file", e);
         }
     }
 }

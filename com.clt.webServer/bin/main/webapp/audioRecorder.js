@@ -21,8 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function connectAudioSendWebSocket() {
     const port = window.audioApp.inputPort;
-    logStatus("Connecting to audio-receive WebSocket...\n   to Port" + port);
-    const ws = new WebSocket(`ws://localhost:${port}/audio-stream?userId=${encodeURIComponent(window.audioApp.userId)}`);
+    const ipAdress = window.audioApp.serverIP;
+    logStatus("Connecting to audio-receive WebSocket...\n   to IPAdress " + ipAdress + " Port" + port);
+    const ws = new WebSocket(`wss://${ipAdress}:${port}/audio-receive?userId=${encodeURIComponent(window.audioApp.userId)}`);
 
     ws.binaryType = "arraybuffer";
     window.audioApp.wsAudioSend = ws;

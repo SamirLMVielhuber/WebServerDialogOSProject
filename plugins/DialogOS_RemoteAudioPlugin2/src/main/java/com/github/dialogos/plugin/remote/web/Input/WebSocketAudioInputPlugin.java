@@ -57,7 +57,7 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
 
     @Override
     public void initialize() {
-        System.out.println("Creating new WebSocketInputStream");
+        System.out.println("Creating new WebSocketInputStream for user: " + this.userId);
         System.out.flush();
         this.inputStream = new WebSocketInputStream();
     }
@@ -154,8 +154,8 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
 
     public void attachHub(String userId) {
         int port = settings != null ? settings.getPort().getValue() : 9000;
-        hub = Manager.getOrCreateHub(userId, port);
-        hub.setAudioInputCallback(this::receiveAudio);
+        this.hub = Manager.getOrCreateHub(userId, port);
+        this.hub.registerAudioInputCallback(userId, this::receiveAudio);
         System.out.println("WebSocketAudioInputPlugin: Attached Hub " + hub + " for: " + userId);
         System.out.flush();
     }

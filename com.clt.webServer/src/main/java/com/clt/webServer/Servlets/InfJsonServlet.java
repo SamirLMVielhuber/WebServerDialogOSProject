@@ -16,15 +16,13 @@ public class InfJsonServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        System.out.println("Current working dir: " + System.getProperty("user.dir"));
-        System.out.flush();
         resp.setContentType("application/json");
 
         try (InputStream is = new FileInputStream(PATH)) {
             is.transferTo(resp.getOutputStream());
         } catch (Exception e) {
             resp.setStatus(500);
-            resp.getWriter().write("{\"error\":\"Could not read inf.json\"}");
+            resp.getWriter().write("{\"Error\":\"Could not read inf.json\"}");
             e.printStackTrace();
         }
     }

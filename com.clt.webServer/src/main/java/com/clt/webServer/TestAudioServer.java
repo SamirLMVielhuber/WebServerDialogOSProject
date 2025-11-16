@@ -14,6 +14,8 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
+
+import com.clt.Config;
 import com.clt.webServer.Servlets.DialogLoadServlet;
 import com.clt.webServer.Servlets.InfJsonServlet;
 import com.github.dialogos.plugin.remote.web.Manager;
@@ -41,9 +43,10 @@ public class TestAudioServer {
     /**
         Starts the normal DialogOS Web Server
      */
-    private static final String PATH = "somePath"; 
-    private static final String PW = "somePW";
-    private static final String IP = "someIP";
+    private static final String PATH = Config.PATH();
+    private static final String PW = Config.PASS();
+    private static final String IP = Config.IP();
+
 
     private static void runWebServer() throws Exception {
         int port = 8080;
@@ -82,8 +85,8 @@ public class TestAudioServer {
         server.start();
         System.out.println("Server running at https://" + IP + ":" + port);
         System.out.println("WebSocket endpoints will be created dynamically at:");
-        System.out.println("     ws://" + IP + ":{somePort}/audio-stream");
-        System.out.println("     ws://"+ IP +":{somePort}/audio-receive");
+        System.out.println("     wss://" + IP + ":{somePort}/audio-stream");
+        System.out.println("     wss://"+ IP +":{somePort}/audio-receive");
         Manager.setServerMode(true);
 
         server.join();

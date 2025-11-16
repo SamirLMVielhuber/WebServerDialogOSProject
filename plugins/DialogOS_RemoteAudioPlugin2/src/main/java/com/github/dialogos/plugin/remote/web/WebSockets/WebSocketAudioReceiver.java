@@ -42,6 +42,10 @@ public class WebSocketAudioReceiver {
 
         if (this.hub.getAudioInputCallback(userId) != null)
             this.hub.getAudioInputCallback(userId).accept(audio);
+        else{
+            System.out.println("There was not Callback assosiated with " + userId + " Therefore, the AudioInput was not sent");
+            System.out.flush();
+        }
     }
 
     @OnWebSocketClose

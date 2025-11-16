@@ -9,40 +9,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PortManagerNew {
-    private class Group{
-        private final int MAX_USERS_PER_PORT;
-        private int current_users;
-        private final Set<String> users = Collections.newSetFromMap(new ConcurrentHashMap<>());;
-
-        public Group(int maxUsers){
-            this.MAX_USERS_PER_PORT = maxUsers;
-        }
-
-        public synchronized boolean addUser(String userId){
-            if(this.isFull())
-                return false;
-            this.current_users++;
-            this.users.add(userId);
-            return true;
-        }
-
-        public boolean isFull(){
-            return this.current_users >= this.MAX_USERS_PER_PORT;
-        }
-        
-        public synchronized void removeUser(String userId) {
-            if (users.remove(userId))
-                this.current_users--;
-        }
-        
-        public synchronized Set<String> snapshotUsers() {
-            return new HashSet<>(users);
-        }
-
-        public synchronized boolean isEmpty() {
-            return this.current_users == 0;
-        }
-    }
     private static final PortManagerNew INSTANCE = new PortManagerNew();
 
     private static final int BASE_PORT = 9000;
@@ -142,5 +108,39 @@ public class PortManagerNew {
     public Set<String> getUsersForPort(int port) {
         Group g = this.portGroups.get(port);
         return g == null ? Collections.emptySet() : g.snapshotUsers();
+    }
+        private class Group{
+        private final int MAX_USERS_PER_PORT;
+        private int current_users;
+        private final Set<String> users = Collections.newSetFromMap(new ConcurrentHashMap<>());;
+
+        public Group(int maxUsers){
+            this.MAX_USERS_PER_PORT = maxUsers;
+        }
+
+        public synchronized boolean addUser(String userId){
+            if(this.isFull())
+                return false;
+            this.current_users++;
+            this.users.add(userId);
+            return true;
+        }
+
+        public boolean isFull(){
+            return this.current_users >= this.MAX_USERS_PER_PORT;
+        }
+        
+        public synchronized void removeUser(String userId) {
+            if (users.remove(userId))
+                this.current_users--;
+        }
+        
+        public synchronized Set<String> snapshotUsers() {
+            return new HashSet<>(users);
+        }
+
+        public synchronized boolean isEmpty() {
+            return this.current_users == 0;
+        }
     }
 }

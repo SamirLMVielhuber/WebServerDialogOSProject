@@ -280,13 +280,13 @@ public class WebSingleDocument extends Document implements GraphOwner {
                         
                         WebSingleDocument.this.attachOwnersRecursively(DeviceXMLHandler.this.graph);
                         
-                        System.out.println("After attachOwners: subgraph owner -> " + 
+                        /*System.out.println("After attachOwners: subgraph owner -> " + 
                             DeviceXMLHandler.this.graph.getNodes().stream()
                                 .filter(n -> n instanceof GraphNode)
                                 .map(n -> ((GraphNode)n).getOwnedGraph())
                                 .filter(Objects::nonNull)
                                 .map(sub -> sub.getOwner())
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toList()));*/
                     }
                 });
             }

@@ -11,6 +11,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
 
+import com.clt.Config;
 import com.github.dialogos.plugin.remote.web.WebSockets.AudioWebSocketStreamer;
 import com.github.dialogos.plugin.remote.web.WebSockets.WebSocketAudioReceiver;
 
@@ -27,15 +28,16 @@ public class WebSocketHub {
         this.port = port;
     }
 
-    private static final String PATH = "somePath"; 
-    private static final String PW = "somePW";
-    private static final String IP = "someIP";
+    private static final String PATH = Config.PATH();
+    private static final String PW = Config.PASS();
+    private static final String IP = Config.IP();
 
     public void start() throws Exception {
-        if (server != null && server.isRunning()) 
+        if (this.server != null && this.server.isRunning()) 
             return;
+
         System.out.println("Starting Server on Port: " + this.port);
-        server = new Server();
+        this.server = new Server();
 
 
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
@@ -43,10 +45,10 @@ public class WebSocketHub {
         sslContextFactory.setKeyStorePassword(PW);
         sslContextFactory.setKeyManagerPassword(PW);
 
-        ServerConnector connector = new ServerConnector(server, sslContextFactory);
+        ServerConnector connector = new ServerConnector(this.server, sslContextFactory);
         connector.setHost(IP);
         connector.setPort(port);
-        server.addConnector(connector);
+        this.server.addConnector(connector);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
@@ -56,8 +58,8 @@ public class WebSocketHub {
             container.addMapping("/audio-stream", AudioWebSocketStreamer.class);
         });
 
-        server.setHandler(context);
-        server.start();
+        this.server.setHandler(context);
+        this.server.start();
 
         //Register hub so annotated sockets can find it by port
         HubRegistry.registerHub(port, this);
@@ -67,10 +69,10 @@ public class WebSocketHub {
     }
 
     public void stop() throws Exception {
-        if (server != null) {
+        if (this.server != null) {
             HubRegistry.unregisterHub(port);
-            server.stop();
-            server = null;
+            this.server.stop();
+            this.server = null;
             System.out.println("WebSocketHub: stopped on port " + port);
             System.out.flush();
         }
@@ -88,7 +90,7 @@ public class WebSocketHub {
     public void registerInputSession(String userId, Session session) {
         Session old = this.inputSessions.put(userId, session);
         if (old != null && old.isOpen()) {
-            System.out.println("There was a previous open Inputsession associated with user " + userId + "\nThat session has been overwritten and closed.");
+            System.out.println("There was a previous open Inputsession associated with user " + userId + ", on Port " + this.port + "\nThat session has been overwritten and closed.");
             System.out.flush();
             try { 
                 old.close();

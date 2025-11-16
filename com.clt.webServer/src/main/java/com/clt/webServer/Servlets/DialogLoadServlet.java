@@ -2,6 +2,7 @@ package com.clt.webServer.Servlets;
 
 import java.util.*;
 
+import com.clt.Config;
 import com.clt.webServer.ConfigReader;
 import com.clt.webServer.ConnectionManager;
 import com.google.gson.Gson;
@@ -50,7 +51,7 @@ public class DialogLoadServlet extends HttpServlet {
             
             //TODOSamir 
             //      Send IP Adress maybe in the future you want to reroute or something idk... so for now it is hardcoded here
-            String ip = "someIP";
+            String ip = Config.IP();
             
             int inputPort = ConnectionManager.getGraphManager(userId).getInputPort();
             int outputPort = ConnectionManager.getGraphManager(userId).getOutputPort();

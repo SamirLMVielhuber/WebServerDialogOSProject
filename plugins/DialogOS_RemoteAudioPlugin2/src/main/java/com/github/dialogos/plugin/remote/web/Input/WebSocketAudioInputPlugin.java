@@ -57,8 +57,7 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
 
     @Override
     public void initialize() {
-        System.out.println("Creating new WebSocketInputStream for user: " + this.userId);
-        System.out.flush();
+        //User is in current initialization way not set here, so you cant do anything with userId here nor with Port
         this.inputStream = new WebSocketInputStream();
     }
 
@@ -73,7 +72,7 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
                         hub.start();
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
-                        System.out.println("WebSocketInputSettings: Error starting Server: " + e.getMessage());
+                        System.out.println("WebSocketInputSettings"+this.hashCode()+": Error starting Server: " + e.getMessage());
                         e.printStackTrace();
                         System.out.flush();
                     }
@@ -107,13 +106,17 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
     }
 
     public void setPort(int port){
-        System.out.println("WebSocketAudioInputPlugin: Setting Port to " + port);
+        System.out.println("WebSocketAudioInputPlugin"+this.hashCode()+": Setting Port to " + port);
         System.out.flush();
         this.settings.port.setValue(port);
     }
+
     public void setUserId(String userId){
+        System.out.println("WebSocketAudioInputPlugin"+this.hashCode()+": Setting userId to " + userId);
+        System.out.flush();
         this.userId = userId;
     }
+    
     public int getPort(){
         return this.settings.port.getValue();
     }

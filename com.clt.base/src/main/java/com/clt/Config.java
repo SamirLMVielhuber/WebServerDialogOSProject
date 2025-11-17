@@ -15,6 +15,7 @@ public class Config {
         }
     }
 
+    //Currently all those functions are not save ... whatever you need all of them regardless for production
     public static String IP() {
         System.out.println("Config: Getting server IP: " + props.getProperty("server.ip"));
         System.out.flush();
@@ -31,5 +32,17 @@ public class Config {
         System.out.println("Config: Getting keystore password: " + props.getProperty("server.keystore.password"));
         System.out.flush();
         return props.getProperty("server.keystore.password");
+    }
+    
+    public static int PERPORTCAPACITY(){
+        System.out.println("Config: Getting per port capacity: " + props.getProperty("server.per_port_capacity"));
+        System.out.flush();
+        try{
+            return Integer.parseInt(props.getProperty("server.per_port_capacity"));
+        }catch (NumberFormatException ex){
+            System.out.println("Config: Error parsing String to int wrongly formatted " + ex.getMessage());
+            System.out.flush();
+            return 1;
+        }
     }
 }

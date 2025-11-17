@@ -48,9 +48,8 @@ public class DialogLoadServlet extends HttpServlet {
             ConnectionManager.getInstance().openConnection(userId, path);
 
             //ConnectionManager.getGraphManager(userId).printGraph();
-            
-            //TODOSamir 
-            //      Send IP Adress maybe in the future you want to reroute or something idk... so for now it is hardcoded here
+
+            //Send IP Adress maybe in the future you want to reroute or something idk... so for now it is hardcoded here
             String ip = Config.IP();
             
             int inputPort = ConnectionManager.getGraphManager(userId).getInputPort();

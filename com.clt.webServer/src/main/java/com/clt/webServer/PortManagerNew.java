@@ -8,13 +8,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.clt.Config;
+
 public class PortManagerNew {
     private static final PortManagerNew INSTANCE = new PortManagerNew();
 
     private static final int BASE_PORT = 9000;
     private static final int MAX_PORT = 10000;
 
-    private static final int MAX_USERS_PER_PORT = 4;
+    private static final int MAX_USERS_PER_PORT = Config.PERPORTCAPACITY();
 
     private final ConcurrentHashMap<Integer, Group> portGroups = new ConcurrentHashMap<>();
 

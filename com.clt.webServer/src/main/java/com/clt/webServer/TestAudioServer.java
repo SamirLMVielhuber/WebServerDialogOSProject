@@ -25,7 +25,7 @@ public class TestAudioServer {
     public static void main(String[] args) throws Exception {
         boolean runLocalTest = false;
 
-        // Check for "-local" argument
+        //Check for "-local" argument
         for (String arg : args) {
             if (arg.equalsIgnoreCase("-local")) {
                 runLocalTest = true;

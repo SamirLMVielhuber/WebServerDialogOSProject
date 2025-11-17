@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     function playAudio(audioData) {
         if (!audioContext) {
-            audioContext = new AudioContext({sampleRate: 16000});
+            //audioContext = new AudioContext({sampleRate: 48000});
+            audioContext = new AudioContext();
             analyser = audioContext.createAnalyser();
             // basically determines the number of points to be shown in the meter
             analyser.fftSize = 256;

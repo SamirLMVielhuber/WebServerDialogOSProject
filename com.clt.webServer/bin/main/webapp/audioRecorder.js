@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const context = new AudioContext({ sampleRate: 48000 });
+    const context = new AudioContext({ sampleRate: 16000 });
     await context.audioWorklet.addModule("pcmProcessor.js");
 
     const source = context.createMediaStreamSource(stream);

@@ -16,3 +16,5 @@ Diamant/src/main/resources/VERSION
 /.idea/
 *.DS_Store
 *class
+/SSLCertificates/*
+server.properties

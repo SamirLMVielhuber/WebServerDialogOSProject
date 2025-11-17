@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function startRecording() {
         // FIXME could be a problem if the recording device doesn´t have actually 48khz
         //  (it´s the most used one, but not all capturing devices have 48khz)
-        audioContext = new AudioContext({sampleRate: 48000});
+        audioContext = new AudioContext({sampleRate: 16000});
         mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
         // Load Workletprocess to process audio to 16 bit pcm (sphinx needs it)

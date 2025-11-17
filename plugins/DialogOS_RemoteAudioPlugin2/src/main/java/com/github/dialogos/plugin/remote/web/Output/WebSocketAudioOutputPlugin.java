@@ -6,9 +6,11 @@ import com.github.dialogos.plugin.remote.web.Manager;
 import com.github.dialogos.plugin.remote.web.WebSocketHub;
 
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFormat;
@@ -207,6 +209,8 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
             this.audioStream = stream;
             this.callback = callback;
             this.userId = userId;
+            System.out.println("Incoming AudioInputStream format: " + audioStream.getFormat());
+
         }
 
         @Override
@@ -215,21 +219,55 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
             assert this.userId != null;
 
             try {
-                AudioFormat targetFormat = new AudioFormat(16000, 16, 1, true, false);
-                AudioInputStream convertedStream = AudioSystem.getAudioInputStream(targetFormat, this.audioStream);
 
-                byte[] buffer = new byte[2048];
+                //AudioFormat targetFormat = new AudioFormat(16000, 16, 1, true, false);
+                //AudioInputStream convertedStream = AudioSystem.getAudioInputStream(targetFormat, this.audioStream);
+                AudioFormat format = new AudioFormat(51000, 16, 1, true, false);
+
+
+
+                byte[] buffer = new byte[32768];
                 int bytesRead;
-                while (this.running && (bytesRead = convertedStream.read(buffer)) != -1) {
-                    byte[] chunk = new byte[bytesRead];
-                    System.arraycopy(buffer, 0, chunk, 0, bytesRead);
-                    this.callback.onAudioChunk(this.userId, chunk);
+                int frameCount = 0; //bytesRead
 
-                    Thread.sleep(50);
+                int frameSize = format.getFrameSize();
+                int sampleRate = (int) format.getSampleRate();
+
+                AudioFormat format1 = audioStream.getFormat();
+
+                System.out.println("Starting audio streaming. Format: " + format1);
+
+
+                while (this.running && (bytesRead = audioStream.read(buffer)) != -1) {
+                    frameCount++;
+                    if (frameCount % 100 == 0) {
+                        System.out.println("Frame " + frameCount + " | Bytes read: " + bytesRead);
+                    }
+
+                    //byte[] chunk = new byte[bytesRead]; //copy as new chunk
+                    byte[] chunk = Arrays.copyOf(buffer, bytesRead);
+                    //System.arraycopy(buffer, 0, chunk, 0, bytesRead);
+                    this.callback.onAudioChunk(this.userId, chunk);
+                    AudioFormat fmt = audioStream.getFormat();
+                    System.out.println(
+                            "Sending chunk: bytes=" + bytesRead +
+                                    ", frames=" + (bytesRead / fmt.getFrameSize()) +
+                                    ", sampleRate=" + fmt.getSampleRate()
+                    );
+
+
+
+
+
+                    int ms = (int) (((double) bytesRead / frameSize) * 1000.0 / sampleRate);
+
+
+                    Thread.sleep(ms);
+
+
                 }
 
-                System.out.println("WebSocketStreamer: Stream finished for user " + this.userId);
-                System.out.flush();
+
             } catch (Exception e) {
                 System.out.println("WebSocketStreamer: Exception while streaming audio for user " + this.userId);
                 System.out.println(e.getMessage());

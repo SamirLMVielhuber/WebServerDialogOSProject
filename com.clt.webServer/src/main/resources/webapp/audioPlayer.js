@@ -49,8 +49,18 @@ document.addEventListener("DOMContentLoaded", function () {
         playAudio(event.data);
     };
   }
+  if (!audioContext) {
+    audioContext = new AudioContext({sampleRate: 48000});
+    //audioContext = new AudioContext();
+    console.log("Actual AudioContext sampleRate:", audioContext.sampleRate);
+
+  }
+
+  let nextStartTime = 0;
 
   function playAudio(arrayBuffer) {
+    console.log("Received PCM length:", arrayBuffer.byteLength);
+
     const pcmData = new Int16Array(arrayBuffer);
     const float32Data = new Float32Array(pcmData.length);
 
@@ -58,29 +68,36 @@ document.addEventListener("DOMContentLoaded", function () {
       float32Data[i] = pcmData[i] / 32768;
     }
 
-    if (!audioContext) {
-      audioContext = new AudioContext({ sampleRate: 16000 });
-    }
 
-    const buffer = audioContext.createBuffer(1, float32Data.length, 16000);
+
+    const buffer = audioContext.createBuffer(1, float32Data.length, 48000);
     buffer.copyToChannel(float32Data, 0);
 
     const source = audioContext.createBufferSource();
     source.buffer = buffer;
+    source.connect(audioContext.destination);
 
-    const gainNode = audioContext.createGain();
-    const localAnalyser = audioContext.createAnalyser();
-    localAnalyser.fftSize = 256;
+    if (nextStartTime < audioContext.currentTime) {
+      nextStartTime = audioContext.currentTime;
+    }
 
-    const localDataArray = new Uint8Array(localAnalyser.frequencyBinCount);
+    source.start(nextStartTime);
 
-    source.connect(gainNode);
-    gainNode.connect(localAnalyser);
-    localAnalyser.connect(audioContext.destination);
+    nextStartTime += buffer.duration;
 
-    source.start();
+    //const gainNode = audioContext.createGain();
+    //const localAnalyser = audioContext.createAnalyser();
+    //localAnalyser.fftSize = 256;
 
-    updateVolumeMeter(localAnalyser, localDataArray);
+    //const localDataArray = new Uint8Array(localAnalyser.frequencyBinCount);
+
+    //source.connect(gainNode);
+    //gainNode.connect(localAnalyser);
+    //localAnalyser.connect(audioContext.destination);
+
+    //source.start();
+
+    //updateVolumeMeter(localAnalyser, localDataArray);
   }
 
   function updateVolumeMeter(analyserInstance, dataArr) {

@@ -1,7 +1,7 @@
 class PCMProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
-        this.resampleRatio = 1; // 48 kHz to 16 kHz resampling ratio
+        this.resampleRatio = 48000 / 16000;; // 48 kHz to 16 kHz resampling ratio
         this.buffer = [];
     }
 

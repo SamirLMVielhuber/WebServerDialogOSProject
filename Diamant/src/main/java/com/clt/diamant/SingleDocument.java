@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.clt.dialogos.plugin.*;
 import com.clt.script.DefaultEnvironment;
@@ -29,6 +30,7 @@ import com.clt.diamant.graph.GraphOwner;
 import com.clt.diamant.graph.Node;
 import com.clt.diamant.graph.Procedure;
 import com.clt.diamant.suspend.DialogSuspendedException;
+import com.clt.diamant.graph.nodes.GraphNode;
 import com.clt.diamant.graph.nodes.NodeExecutionException;
 import com.clt.diamant.graph.nodes.ProcNode;
 import com.clt.diamant.graph.search.NodeSearchFilter;
@@ -260,6 +262,16 @@ public class SingleDocument extends Document implements GraphOwner {
 
                         DeviceXMLHandler.this.graph.updateEdges();
                         SingleDocument.this.setGraph(DeviceXMLHandler.this.graph);
+
+                        SingleDocument.this.attachOwnersRecursively(DeviceXMLHandler.this.graph);
+                        
+                        /*System.out.println("After attachOwners: subgraph owner -> " + 
+                            DeviceXMLHandler.this.graph.getNodes().stream()
+                                .filter(n -> n instanceof GraphNode)
+                                .map(n -> ((GraphNode)n).getOwnedGraph())
+                                .filter(Objects::nonNull)
+                                .map(sub -> sub.getOwner())
+                                .collect(Collectors.toList()));*/
                     }
                 });
             }
@@ -270,7 +282,7 @@ public class SingleDocument extends Document implements GraphOwner {
 
     private Map<Class<? extends Plugin>, PluginSettings> pluginSettings;
     private Collection<Device> devices;
-    public PluginManager pluginManager;
+    private PluginManager pluginManager;
 
     private Map<String, TemplateBundle> localizationBundles;
 
@@ -958,5 +970,102 @@ public class SingleDocument extends Document implements GraphOwner {
 
     public Collection<SearchResult> find(NodeSearchFilter filter) {
         return this.graph.find(filter);
+    }
+
+    /**
+        After loading a graph into this document, call this to ensure every subgraph
+            has an owner which delegates plugin manager calls to this SingleDocument.
+            TODO Generally a stupid fix in my eyes but it works for now let someone else fix this, not my problem.
+    */
+    private void attachOwnersRecursively(Graph g) {
+        if (g == null) return;
+
+        // iterate nodes in this graph
+        for (Node n : new ArrayList<>(g.getNodes())) {
+            if (n instanceof GraphNode) {
+                GraphNode gn = (GraphNode) n;
+                Graph sub = gn.getOwnedGraph();
+                if (sub != null) {
+                    // create a GraphOwner delegating to this SingleDocument
+                    GraphOwner delegatingOwner = new GraphOwner() {
+
+                        @Override
+                        public Graph getSuperGraph() {
+                            return g;
+                        }
+
+                        @Override
+                        public Graph getOwnedGraph() {
+                            return sub;
+                        }
+
+                        @Override
+                        public Collection<Device> getDevices() {
+                            return SingleDocument.this.getDevices();
+                        }
+
+                        @Override
+                        public List<Grammar> getGrammars() {
+                            return SingleDocument.this.getGrammars();
+                        }
+
+                        @Override
+                        public PluginSettings getPluginSettings(Class<? extends Plugin> pluginClass) {
+                            return SingleDocument.this.getPluginSettings(pluginClass);
+                        }
+
+                        @Override
+                        public PluginManager getPluginManager() {
+                            return SingleDocument.this.getPluginManager();
+                        }
+
+                        @Override
+                        public Environment getEnvironment(boolean local) {
+                            return SingleDocument.this.getEnvironment(local);
+                        }
+
+                        @Override
+                        public void setDirty(boolean dirty) {
+                        }
+
+                        @Override
+                        public void export(Graph g, File f) throws IOException {
+                            SingleDocument.this.export(g, f);
+                        }
+
+                        @Override
+                        public String getGraphName() {
+                            return SingleDocument.this.getGraphName();
+                        }
+
+                        @Override
+                        public void setGraphName(String name) {
+                            SingleDocument.this.setGraphName(name);
+                        }
+                    };
+
+                    // attach the delegating owner to the subgraph
+                    sub.setOwner(delegatingOwner);
+
+                    // (Optional) if GraphNode itself needs an owner reference pointing to the document,
+                    // try to set it here if GraphNode has a setter (some APIs do):
+                    try {
+                        // reflectively set owner on GraphNode if method exists:
+                        java.lang.reflect.Method setOwnerMethod = null;
+                        try {
+                            setOwnerMethod = gn.getClass().getMethod("setOwner", GraphOwner.class);
+                        } catch (NoSuchMethodException ignore) {}
+                        if (setOwnerMethod != null) {
+                            setOwnerMethod.invoke(gn, SingleDocument.this);
+                        }
+                    } catch (Exception ex) {
+                        // not fatal: many implementations won't have setOwner; subgraph owner is the main fix.
+                        System.out.println("No owner Set: " + ex.getMessage());
+                    }
+
+                    attachOwnersRecursively(sub);
+                }
+            }
+        }
     }
 }

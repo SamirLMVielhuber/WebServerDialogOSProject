@@ -91,7 +91,6 @@ public abstract class AbstractOutputNode extends Node {
     }
 
     public AbstractOutputNode() {
-        System.out.println("AbstractOutputNode");
         System.out.flush();
         this.setProperty(PROMPT, "");
         this.setProperty(PROMPT_TYPE, getDefaultPromptType());

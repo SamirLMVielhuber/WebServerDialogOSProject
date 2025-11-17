@@ -5,31 +5,51 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
 
+import com.clt.Config;
 import com.github.dialogos.plugin.remote.web.WebSockets.AudioWebSocketStreamer;
 import com.github.dialogos.plugin.remote.web.WebSockets.WebSocketAudioReceiver;
 
 public class WebSocketHub {
-    //must currently be unique for every document
     private final int port;
     private Server server;
 
     private final Map<String, Session> inputSessions = new ConcurrentHashMap<>();
     private final Map<String, Session> outputSessions = new ConcurrentHashMap<>();
-    private volatile Consumer<byte[]> audioInputCallback;
+    
+    private final Map<String, Consumer<byte[]>> callbacks = new ConcurrentHashMap<>();
 
     public WebSocketHub(int port) {
         this.port = port;
     }
 
+    private static final String PATH = Config.PATH();
+    private static final String PW = Config.PASS();
+    private static final String IP = Config.IP();
+
     public void start() throws Exception {
-        if (server != null && server.isRunning()) 
+        if (this.server != null && this.server.isRunning()) 
             return;
 
-        server = new Server(port);
+        System.out.println("Starting Server on Port: " + this.port);
+        this.server = new Server();
+
+
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStorePath(PATH);
+        sslContextFactory.setKeyStorePassword(PW);
+        sslContextFactory.setKeyManagerPassword(PW);
+
+        ServerConnector connector = new ServerConnector(this.server, sslContextFactory);
+        connector.setHost(IP);
+        connector.setPort(port);
+        this.server.addConnector(connector);
+
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
 
@@ -38,8 +58,8 @@ public class WebSocketHub {
             container.addMapping("/audio-stream", AudioWebSocketStreamer.class);
         });
 
-        server.setHandler(context);
-        server.start();
+        this.server.setHandler(context);
+        this.server.start();
 
         //Register hub so annotated sockets can find it by port
         HubRegistry.registerHub(port, this);
@@ -49,52 +69,83 @@ public class WebSocketHub {
     }
 
     public void stop() throws Exception {
-        if (server != null) {
+        if (this.server != null) {
             HubRegistry.unregisterHub(port);
-            server.stop();
-            server = null;
+            this.server.stop();
+            this.server = null;
             System.out.println("WebSocketHub: stopped on port " + port);
             System.out.flush();
         }
     }
 
-    public void setAudioInputCallback(Consumer<byte[]> callback) {
-        this.audioInputCallback = callback;
+    public void registerAudioInputCallback(String userId, Consumer<byte[]> callback) {
+        System.out.println("Registering Audio Callback for User " + userId);
+        this.callbacks.put(userId, callback);
     }
-    public Consumer<byte[]> getAudioInputCallback(){
-        return this.audioInputCallback;
+    
+    public Consumer<byte[]> getAudioInputCallback(String userId){
+        return this.callbacks.get(userId);
     }
     
     public void registerInputSession(String userId, Session session) {
-        inputSessions.put(userId, session);
+        Session old = this.inputSessions.put(userId, session);
+        if (old != null && old.isOpen()) {
+            System.out.println("There was a previous open Inputsession associated with user " + userId + ", on Port " + this.port + "\nThat session has been overwritten and closed.");
+            System.out.flush();
+            try { 
+                old.close();
+            } catch (Exception ex) {}
+        }
     }
 
     public void unregisterInputSession(String userId) {
-        inputSessions.remove(userId);
+        Session old = this.inputSessions.remove(userId);
+        if (old != null && old.isOpen()){
+            System.out.println("Unregistering Inputsession for " + userId);
+            try{
+                old.close();
+            } catch (Exception ex){}
+        }
+        this.callbacks.remove(userId);
     }
 
     public void registerOutputSession(String userId, Session session) {
-        outputSessions.put(userId, session);
+        Session old = this.outputSessions.put(userId, session);
+        if (old != null && old.isOpen()) {
+            System.out.println("There was a previous open Outputsession associated with user " + userId + "\nThat session has been overwritten and closed.");
+            System.out.flush();
+            try { 
+                old.close();
+            } catch (Exception ex) {}
+        }
     }
 
     public void unregisterOutputSession(String userId) {
-        outputSessions.remove(userId);
+        Session old = this.outputSessions.remove(userId);
+        if (old != null && old.isOpen()){
+            System.out.println("Unregistering Outputsession for " + userId);
+            try{
+                old.close();
+            } catch (Exception ex){}
+        }
     }
 
     public Session getOutputSession(String userId) {
-        return outputSessions.get(userId);
+        return this.outputSessions.get(userId);
     }
     public Session getInputSession(String userId) {
-        return inputSessions.get(userId);
+        return this.inputSessions.get(userId);
     }
 
     public void broadcastToOutputs(byte[] audio) {
-        for (Session s : outputSessions.values()) {
+        for (Session s : this.outputSessions.values()) {
             try {
                 if (s.isOpen()) 
                     s.getRemote().sendBytes(java.nio.ByteBuffer.wrap(audio));
             } catch (Exception e) { 
-                e.printStackTrace(); 
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+                System.out.flush();
             }
         }
     }

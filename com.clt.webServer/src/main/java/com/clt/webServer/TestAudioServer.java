@@ -1,8 +1,10 @@
 package com.clt.webServer;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -12,6 +14,8 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
+
+import com.clt.Config;
 import com.clt.webServer.Servlets.DialogLoadServlet;
 import com.clt.webServer.Servlets.InfJsonServlet;
 import com.github.dialogos.plugin.remote.web.Manager;
@@ -37,11 +41,27 @@ public class TestAudioServer {
     }
 
     /**
-     * Starts the normal DialogOS Web Server
+        Starts the normal DialogOS Web Server
      */
+    private static final String PATH = Config.PATH();
+    private static final String PW = Config.PASS();
+    private static final String IP = Config.IP();
+
+
     private static void runWebServer() throws Exception {
         int port = 8080;
-        Server server = new Server(port);
+        
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStorePath(PATH);
+        sslContextFactory.setKeyStorePassword(PW);
+        sslContextFactory.setKeyManagerPassword(PW);
+
+        Server server = new Server();
+        ServerConnector connector = new ServerConnector(server, sslContextFactory);
+        connector.setHost(IP);
+        connector.setPort(port);
+
+        server.addConnector(connector);
 
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(false);
@@ -63,17 +83,17 @@ public class TestAudioServer {
         server.setHandler(handlers);
 
         server.start();
-        System.out.println("Server running at http://localhost:" + port);
+        System.out.println("Server running at https://" + IP + ":" + port);
         System.out.println("WebSocket endpoints will be created dynamically at:");
-        System.out.println("     ws://localhost:{somePort}/audio-stream");
-        System.out.println("     ws://localhost:{somePort}/audio-receive");
+        System.out.println("     wss://" + IP + ":{somePort}/audio-stream");
+        System.out.println("     wss://"+ IP +":{somePort}/audio-receive");
         Manager.setServerMode(true);
 
         server.join();
     }
 
     /**
-     * Runs the local WebSocket test client
+        Runs the local WebSocket test client
      */
     private static void runLocalWebSocketTest() throws Exception {
         String userId = "default";

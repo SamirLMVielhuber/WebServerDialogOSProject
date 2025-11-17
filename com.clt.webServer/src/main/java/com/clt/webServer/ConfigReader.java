@@ -34,4 +34,10 @@ public class ConfigReader {
     public String getDocumentPath(String name) {
         return documents.get(name);
     }
+
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        return "";
+    }
 }

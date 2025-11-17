@@ -5,15 +5,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Manager {
     private static WebSocketHub globalHub;
-    private static final Map<String, WebSocketHub> userHubs = new ConcurrentHashMap<>();
+    private static final Map<String, WebSocketHub> portHubs = new ConcurrentHashMap<>();
     private static boolean serverMode = false;
+    //TODOSamir look into where to add the IP adress... and if IPAdress is null maybe take the IPAdress from the AudioInput/Output Settings????
 
     public static void setServerMode(boolean isServerMode) {
         serverMode = isServerMode;
     }
 
     /**
-        Get or create a hub for the given userId.
+        Get or create a hub for the given port.
         If in GUI mode, just returns/creates a global singleton.
     */
     public static synchronized WebSocketHub getOrCreateHub(String userId, int port) {
@@ -21,17 +22,20 @@ public class Manager {
             if (serverMode) {
                 System.out.println("HubManager: Is Server mode");
                 System.out.flush();
-                return userHubs.computeIfAbsent(userId, id -> {
-                    try {
-                        WebSocketHub hub = new WebSocketHub(port);
-                        System.out.flush();
-                        hub.start();
-                        System.out.println("HubManager: Created hub for user " + id + " on port " + port);
-                        return hub;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                if(portHubs.containsKey(Integer.toString(port))){
+                    System.out.println("Port " + port + ", already existed. Adding User " + userId);
+                    System.out.flush();
+                    WebSocketHub hub = portHubs.get(Integer.toString(port));
+                    return hub;
+                }
+                else{
+                    WebSocketHub hub = new WebSocketHub(port);
+                    hub.start();
+                    portHubs.put(Integer.toString(port), hub);
+                    System.out.println("Port " + port + ", did not exist. Adding User " + userId);
+                    System.out.flush();
+                    return hub;
+                }
             } else {
                 System.out.println("HubManager: Is Server not mode");
                 System.out.flush();
@@ -48,16 +52,16 @@ public class Manager {
         }
     }
 
-    public static WebSocketHub getHub(String userId) {
-        return serverMode ? userHubs.get(userId) : globalHub;
+    public static WebSocketHub getHub(String port) {
+        return serverMode ? portHubs.get(port) : globalHub;
     }
 
-    public static void removeHub(String userId) {
+    public static void removeHub(String port) {
         if (serverMode) {
-            WebSocketHub hub = userHubs.remove(userId);
+            WebSocketHub hub = portHubs.remove(port);
             if (hub != null) {
                 try { hub.stop(); } catch (Exception ignored) {}
-                System.out.println("HubManager: Removed hub for user " + userId);
+                System.out.println("HubManager: Removed hub for Port " + port);
             }
         }
     }
@@ -67,9 +71,9 @@ public class Manager {
             try { globalHub.stop(); } catch (Exception ignored) {}
             globalHub = null;
         }
-        userHubs.values().forEach(h -> {
+        portHubs.values().forEach(h -> {
             try { h.stop(); } catch (Exception ignored) {}
         });
-        userHubs.clear();
+        portHubs.clear();
     }
 }

@@ -10,13 +10,11 @@ import com.github.dialogos.plugin.remote.web.WebSocketHub;
 
 @WebSocket
 public class WebSocketAudioReceiver {
-
-    private String userId;
     private WebSocketHub hub;
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        this.userId = extractUserId(session);
+        String userId = extractUserId(session);
         int localPort = ((java.net.InetSocketAddress) session.getLocalAddress()).getPort();
         this.hub = HubRegistry.getHub(localPort);
 
@@ -25,34 +23,37 @@ public class WebSocketAudioReceiver {
             System.out.flush();
             return;
         }
-
-        if (this.userId == null) 
-            this.userId = "unknown";
         
-        this.hub.registerInputSession(this.userId, session);
-        System.out.println("WebSocketAudioReceiver: /audio-receive connected for userId=" + this.userId + " on port: " + localPort);
+        this.hub.registerInputSession(userId, session);
+        System.out.println("WebSocketAudioReceiver: /audio-receive connected for userId=" + userId + " on port: " + localPort);
         System.out.flush();
     }
 
     @OnWebSocketMessage
     public void onMessage(Session session, byte[] payload, int offset, int length) {
+        String userId = extractUserId(session);
         if (this.hub == null){
             System.out.println("WebSocketAudioReceiver: Hub does not exist, can not receive Message");
+            System.out.flush();
             return;
         }
-
         byte[] audio = new byte[length];
         System.arraycopy(payload, offset, audio, 0, length);
 
-        if (this.hub.getAudioInputCallback() != null)
-            this.hub.getAudioInputCallback().accept(audio);
+        if (this.hub.getAudioInputCallback(userId) != null)
+            this.hub.getAudioInputCallback(userId).accept(audio);
+        else{
+            System.out.println("There was not Callback assosiated with " + userId + " Therefore, the AudioInput was not sent");
+            System.out.flush();
+        }
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int status, String reason) {
-        if (this.hub != null && this.userId != null) {
-            this.hub.unregisterInputSession(this.userId);
-            System.out.println("WebSocketAudioReceiver: disconnected " + this.userId);
+        String userId = extractUserId(session);
+        if (this.hub != null && userId != null) {
+            this.hub.unregisterInputSession(userId);
+            System.out.println("WebSocketAudioReceiver: disconnected " + userId);
             System.out.flush();
         }
     }

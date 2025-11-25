@@ -66,7 +66,7 @@ public class Plugin implements com.clt.dialogos.plugin.Plugin {
     }
 
     public static Sphinx getRecognizer() {
-        System.out.println("Sphinx HashCode: "+ SphinxHolder.SPHINX.hashCode() +"got fetched");
+        System.out.println("Sphinx HashCode: "+ SphinxHolder.SPHINX.hashCode() +" got fetched");
         System.out.flush();
         return SphinxHolder.SPHINX;
     }

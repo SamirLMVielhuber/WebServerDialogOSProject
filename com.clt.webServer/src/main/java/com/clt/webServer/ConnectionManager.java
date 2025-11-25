@@ -62,6 +62,8 @@ public class ConnectionManager {
         System.out.flush();
 
         if (connections.containsKey(userId)) {
+            System.out.println("Graph was already there closing old Graph");
+            System.out.flush();
             closeConnection(userId);
         }
 

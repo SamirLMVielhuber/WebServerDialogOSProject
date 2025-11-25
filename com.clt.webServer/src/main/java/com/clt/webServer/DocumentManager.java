@@ -102,7 +102,8 @@ public class DocumentManager{
             }
         }
 
-        if (this.graphThread != null) {
+        //Take this out for production should be fine without this I guess this was just to test and make sure
+        /*if (this.graphThread != null) {
             final long JOIN_TIMEOUT_MS = 10000;
             try {
                 long start = System.currentTimeMillis();
@@ -128,7 +129,7 @@ public class DocumentManager{
                 System.out.println("DocumentManager: Graph thread has terminated.");
             }
             System.out.flush();
-        }
+        }*/
 
         if (this.executer != null && this.document != null) {
             try {
@@ -155,6 +156,8 @@ public class DocumentManager{
                 System.out.println("DocumentManager: Starting Graph");
                 System.out.flush();
                 this.document.run(null, executer);
+                System.out.println("DocumentManager: Graph stoped for User " + userId);
+                System.out.flush();
             } catch (Exception e) {
                 System.out.println("DocumentManager: Exception occured while running document: " + e.getMessage());
                 e.printStackTrace();

@@ -24,13 +24,7 @@ public class ConnectionManager {
                 DocumentManager doc = ConnectionManager.getGraphManager(userId);
                 if (doc != null) {
                     System.out.println("GraphControlRegistry: Starting Graph " + doc.getGraphName());
-                    new Thread(() -> {
-                        try {
-                            doc.startGraph();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }, "GraphRunner-" + userId).start();
+                    doc.startGraph();
                 }
                 System.out.flush();
             }
@@ -38,8 +32,9 @@ public class ConnectionManager {
             @Override
             public void onStopRequested(String userId) {
                 DocumentManager doc = ConnectionManager.getGraphManager(userId);
+                System.out.println("GraphControlRegistry: Called on Stop Request for " + doc.getGraphName() + " for User: " + userId);
                 if (doc != null) {
-                    System.out.println("GraphControlRegistry: Stopping Graph " + doc.getGraphName() + " for User: " + userId);
+                    System.out.println("GraphControlRegistry: Stopping Graph");
                     System.out.flush();
                     doc.closeGraph();
                     PortManager.getInstance().releasePorts(userId);
@@ -109,7 +104,6 @@ public class ConnectionManager {
             } catch (Exception e) {
                 System.err.println("Failed to release ports for userId " + userId + ": " + e.getMessage());
             }
-            //TODO clean up Graph...
             connections.remove(userId);
             gM.closeGraph();
         }

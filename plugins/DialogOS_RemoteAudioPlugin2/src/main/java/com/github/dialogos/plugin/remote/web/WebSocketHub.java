@@ -18,7 +18,6 @@ import com.github.dialogos.plugin.remote.web.WebSockets.WebSocketAudioReceiver;
 public class WebSocketHub {
     private final int port;
     private Server server;
-
     private final Map<String, Session> inputSessions = new ConcurrentHashMap<>();
     private final Map<String, Session> outputSessions = new ConcurrentHashMap<>();
     
@@ -32,6 +31,7 @@ public class WebSocketHub {
     private static final String PW = Config.PASS();
     private static final String IP = Config.IP();
 
+    //Safe to call because it instantly returns if it should not be possible to call it
     public void start() throws Exception {
         if (this.server != null && this.server.isRunning()) 
             return;
@@ -87,6 +87,15 @@ public class WebSocketHub {
         return this.callbacks.get(userId);
     }
     
+    public boolean isEmpty(){
+        return this.inputSessions.isEmpty() && this.outputSessions.isEmpty();
+    }
+
+    private void maybeScheduleUserShutdown(String userId) {
+        if (!this.inputSessions.containsKey(userId) && !this.outputSessions.containsKey(userId))
+            UserTimeoutScheduler.getInstance().scheduleStopForUser(userId, this.port);
+    }
+
     public void registerInputSession(String userId, Session session) {
         Session old = this.inputSessions.put(userId, session);
         if (old != null && old.isOpen()) {
@@ -96,16 +105,26 @@ public class WebSocketHub {
                 old.close();
             } catch (Exception ex) {}
         }
+        UserTimeoutScheduler.getInstance().cancelStopForUser(userId);
     }
 
     public void unregisterInputSession(String userId) {
         Session old = this.inputSessions.remove(userId);
         if (old != null && old.isOpen()){
             System.out.println("Unregistering Inputsession for " + userId);
+            System.out.flush();
             try{
                 old.close();
             } catch (Exception ex){}
         }
+        //this.callbacks.remove(userId); This is now done inside the timeout Scheduler...
+        maybeScheduleUserShutdown(userId);
+    }
+
+    public void removeUser(String userId){
+        System.out.println("WebSocketHub: Deleting User: " + userId + "completly");
+        this.inputSessions.remove(userId);
+        this.outputSessions.remove(userId);
         this.callbacks.remove(userId);
     }
 
@@ -118,16 +137,20 @@ public class WebSocketHub {
                 old.close();
             } catch (Exception ex) {}
         }
+
+        UserTimeoutScheduler.getInstance().cancelStopForUser(userId);
     }
 
     public void unregisterOutputSession(String userId) {
         Session old = this.outputSessions.remove(userId);
         if (old != null && old.isOpen()){
             System.out.println("Unregistering Outputsession for " + userId);
+            System.out.flush();
             try{
                 old.close();
             } catch (Exception ex){}
         }
+        maybeScheduleUserShutdown(userId);
     }
 
     public Session getOutputSession(String userId) {

@@ -27,6 +27,9 @@ public class DocumentManager{
     }
     private WebSingleDocument document;
     private String userId;
+    private Thread graphThread;
+    private volatile boolean stopRequested = false;
+    private WozInterface executer;
     
     public DocumentManager(){}
 
@@ -64,24 +67,100 @@ public class DocumentManager{
         WebSingleDocument.printAllVariables(this.document.getOwnedGraph());
     }
 
-    //TODOSamir close the server...
     public void closeGraph(){
-        if (this.document != null) {
-            System.out.println("Release Devices");
-            this.document.closeDevices();
+        System.out.println("DocumentManager: Closing Graph (cleanup)");
+        System.out.flush();
 
+        if (this.document != null) {
+            try {
+                System.out.println("DocumentManager: Release Devices");
+                this.document.closeDevices();
+            } catch (Exception ex) {
+                System.out.println("Error closing devices: " + ex.getMessage());
+                ex.printStackTrace();
+            }
             System.out.flush();
         }
+
+        if (this.executer != null) {
+            try {
+                System.out.println("DocumentManager: Requesting execution abort");
+                this.executer.abort();             // sets abort flag and disposes input
+            } catch (Exception ex) {
+                System.out.println("Error calling executer.abort(): " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
+
+        if (this.graphThread != null && this.graphThread.isAlive()) {
+            try {
+                System.out.println("DocumentManager: Interrupting graph thread");
+                this.graphThread.interrupt();
+            } catch (Exception ex) {
+                System.out.println("Error interrupting graph thread: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        }
+
+        if (this.graphThread != null) {
+            final long JOIN_TIMEOUT_MS = 10000;
+            try {
+                long start = System.currentTimeMillis();
+                System.out.println("DocumentManager: Waiting for graph thread to finish...");
+                this.graphThread.join(JOIN_TIMEOUT_MS);
+                long waited = System.currentTimeMillis() - start;
+                System.out.println("DocumentManager: join returned; waited " + waited + " ms");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("DocumentManager: join interrupted: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            if (this.graphThread.isAlive()) {
+                System.out.println("DocumentManager: Thread still alive after join timeout. Will attempt interrupt again.");
+                try {
+                    this.graphThread.interrupt();
+                } catch (Exception ex) {
+                    System.out.println("Error re-interrupting graph thread: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            } else {
+                System.out.println("DocumentManager: Graph thread has terminated.");
+            }
+            System.out.flush();
+        }
+
+        if (this.executer != null && this.document != null) {
+            try {
+                System.out.println("DocumentManager: Finalizing executer endDocument");
+                this.executer.endDocument(this.document);
+            } catch (Exception ex) {
+                System.out.println("Error in executer.endDocument: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+            System.out.flush();
+        }
+
+        this.executer = null;
+        this.graphThread = null;
+
+        System.out.println("DocumentManager: closeGraph complete");
+        System.out.flush();
     }
 
     public void startGraph(){
-        WozInterface executer = new Executer(null, false);
-        System.out.println("DocumentManager: Starting Graph");
-        try{
-            this.document.run(null, executer);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
+        this.graphThread = new Thread(() -> {
+            try {
+                this.executer = new Executer(null, false);
+                System.out.println("DocumentManager: Starting Graph");
+                System.out.flush();
+                this.document.run(null, executer);
+            } catch (Exception e) {
+                System.out.println("DocumentManager: Exception occured while running document: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }, "GraphRunner-" + this.userId);
+        this.graphThread.start();
     }
 
     public int getInputPort() { 

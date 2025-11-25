@@ -26,6 +26,7 @@ public class Manager {
                     System.out.println("Port " + port + ", already existed. Adding User " + userId);
                     System.out.flush();
                     WebSocketHub hub = portHubs.get(Integer.toString(port));
+                    hub.start();
                     return hub;
                 }
                 else{

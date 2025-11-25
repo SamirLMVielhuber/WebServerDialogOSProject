@@ -37,6 +37,7 @@ public class WebSocketAudioReceiver {
             System.out.flush();
             return;
         }
+        
         byte[] audio = new byte[length];
         System.arraycopy(payload, offset, audio, 0, length);
 

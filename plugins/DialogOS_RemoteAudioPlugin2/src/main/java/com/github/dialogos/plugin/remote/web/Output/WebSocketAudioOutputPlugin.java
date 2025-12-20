@@ -121,6 +121,9 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
         return this.settings.port.getValue();
     }
 
+    /* 
+        Called in DocumentManager to attach the Hub to the User immediatly
+    */
     public void attachHub(String userId) {
         int port = (settings != null) ? settings.getPort().getValue() : 8080;
         this.userId = userId;
@@ -154,8 +157,7 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
             @Override
             public void onAudioChunk(String userId, byte[] data) {
                 WebSocketAudioOutputPlugin.this.sendAudio(userId, data);
-            }
-            
+            }    
         });
         this.currentStreamer.start();
     }

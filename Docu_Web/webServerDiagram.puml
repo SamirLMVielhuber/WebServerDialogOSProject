@@ -1,0 +1,41 @@
+@startuml
+User -> WebService: choosesGraph
+WebService -> WebService: createsUserId
+WebService -> GraphManager: OpenGraph(userId,graphName)
+GraphManager -> DocumentManager: OpenGraph(graphName)
+
+GraphManager -> PortManager: decideOpenPort(graphPortsfromXML)
+PortManager --> GraphManager: openPort()
+GraphManager -> WebSocketAudioOutputPlugin: SetOutputPort(openPort)
+GraphManager -> WebSocketAudioInputPlugin: SetInputPort(openPort)
+GraphManager -> WebSocketAudioOutputPlugin: attachHub()
+GraphManager -> WebSocketAudioInputPlugin: attachHub()
+WebSocketAudioOutputPlugin -> Manager: GetOrCreateHub(userId, Port) //UserId only for logging
+Manager -> WebSocketHub: start()
+
+opt if not already started
+WebSocketHub -> WebSocketAudioReceiver: registerEndpoint()
+WebSocketHub -> AudioWebSocketStreamer: registerEndpoint()
+WebSocketHub -> HubRegistry: register(userId, this)
+end
+
+WebSocketAudioInputPlugin -> Manager: GetOrCreateHub(userId, Port) //UserId only for logging
+Manager -> WebSocketHub: start()
+
+opt if not already started
+WebSocketHub -> WebSocketAudioReceiver: registerEndpoint()
+WebSocketHub -> AudioWebSocketStreamer: registerEndpoint()
+WebSocketHub -> HubRegistry: register(userId, this)
+end
+WebSocketAudioInputPlugin -> WebSocketHub: registerAudioInputCallback(userId, callback)
+
+opt if connection with ReceiverEndpoint
+WebSocketAudioReceiver -> WebSocketHub: registerInputSession(userId, session)
+end
+
+opt if connection with StreamerEndpoint:
+AudioWebSocketStreamer -> WebSocketHub: registerOutputSession(userId, session)
+end
+
+WebService --> User: opensNewWebSite(port, ip)
+@enduml

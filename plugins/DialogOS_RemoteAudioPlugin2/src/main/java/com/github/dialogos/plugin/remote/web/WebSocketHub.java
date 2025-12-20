@@ -121,11 +121,25 @@ public class WebSocketHub {
         maybeScheduleUserShutdown(userId);
     }
 
-    public void removeUser(String userId){
-        System.out.println("WebSocketHub: Deleting User: " + userId + "completly");
-        this.inputSessions.remove(userId);
-        this.outputSessions.remove(userId);
-        this.callbacks.remove(userId);
+    public void removeUser(String userId) {
+        System.out.println("WebSocketHub: Deleting User: " + userId + " completely");
+        Session input = inputSessions.remove(userId);
+        if (input != null) {
+            try {
+                input.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        Session output = outputSessions.remove(userId);
+        if (output != null) {
+            try {
+                output.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        callbacks.remove(userId);
     }
 
     public void registerOutputSession(String userId, Session session) {

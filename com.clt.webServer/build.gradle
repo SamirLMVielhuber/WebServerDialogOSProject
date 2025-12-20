@@ -36,8 +36,7 @@ run {
 
 task testAudioServer(type: JavaExec) {
     group = "application"
-    description = "Runs a test that creates GraphManager instances and prints AudioPlugin info"
-
+    
     mainClass.set("com.clt.webServer.TestAudioServer")
 
     classpath = sourceSets.main.runtimeClasspath

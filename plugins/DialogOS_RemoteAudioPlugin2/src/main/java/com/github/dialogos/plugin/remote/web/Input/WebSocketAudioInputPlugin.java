@@ -155,6 +155,9 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
         }
     }
 
+    /* 
+        Called in DocumentManager to attach the Hub to the User immediatly
+    */
     public void attachHub(String userId) {
         int port = settings != null ? settings.getPort().getValue() : 9000;
         this.hub = Manager.getOrCreateHub(userId, port);

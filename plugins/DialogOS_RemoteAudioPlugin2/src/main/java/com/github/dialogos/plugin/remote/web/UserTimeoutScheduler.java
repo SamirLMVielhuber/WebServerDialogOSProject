@@ -36,10 +36,12 @@ public class UserTimeoutScheduler {
                         listener.onStopRequested(userId);
                     }
                     WebSocketHub hub = HubRegistry.getHub(port);
-                    if (hub != null && hub.isEmpty()) {
-                        System.out.println("No more users in hub for port " + port + ", stopping hub");
+                    if(hub != null){
                         hub.removeUser(userId);
-                        hub.stop();
+                        if(hub.isEmpty()){
+                            System.out.println("No more users in hub for port " + port + ", stopping hub");
+                            hub.stop();
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

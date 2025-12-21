@@ -9,7 +9,7 @@ AudioWebSocketStreamer -> WebSocketHub: registerOutputSession(userId, session)
 WebSocketHub -> UserTimeoutScheduler: cancelStopForUser(userId)
 end
 
-opt if connection ended with ReceiverEndpoint:
+opt if disconnect with ReceiverEndpoint:
 WebSocketAudioReciever -> WebSocketHub: unregisterInputSession(userId)
 WebSocketHub -> UserTimeoutScheduler: scheduleStopForUser(userId, port)
 opt if no Users left:
@@ -17,7 +17,7 @@ UserTimeoutScheduler -> WebSocketHub: stop()
 end
 end
 
-opt if connection ended with StreamerEndpoint:
+opt if disconnect with StreamerEndpoint:
 AudioWebSocketStreamer -> WebSocketHub: unregisterOutputSession(userId)
 WebSocketHub -> UserTimeoutScheduler: scheduleStopForUser(userId, port)
 opt if no Users left:

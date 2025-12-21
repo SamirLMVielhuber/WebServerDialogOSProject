@@ -1,4 +1,4 @@
-@startuml
+@startuml StartInit for User and his Graph
 User -> WebService: choosesGraph
 WebService -> WebService: createsUserId
 WebService -> GraphManager: OpenGraph(userId,graphName)
@@ -28,14 +28,6 @@ WebSocketHub -> AudioWebSocketStreamer: registerEndpoint()
 WebSocketHub -> HubRegistry: register(userId, this)
 end
 WebSocketAudioInputPlugin -> WebSocketHub: registerAudioInputCallback(userId, callback)
-
-opt if connection with ReceiverEndpoint
-WebSocketAudioReceiver -> WebSocketHub: registerInputSession(userId, session)
-end
-
-opt if connection with StreamerEndpoint:
-AudioWebSocketStreamer -> WebSocketHub: registerOutputSession(userId, session)
-end
 
 WebService --> User: opensNewWebSite(port, ip)
 @enduml

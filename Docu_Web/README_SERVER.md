@@ -1,6 +1,16 @@
 # Erklärung
 
 ## Setup
+1. Erstelle einen Keystore und füge ihn ins Projekt ein, merke Passwort
+2. Suche IP Adresse heraus auf der das Programm laufen soll
+3. Erstelle die File:
+    <center>
+    /com/server.properties<br>
+    TODO Füge Example Picture ein
+    </center>
+    füge dort alles hinein. Die File ist aus Sicherheitsgründen im .gitignore, wir wollen ja nich das irgendwas ausversehen gepublisht wird.
+    Dies gilt auch für den gesamten SSLCertificates Folder.
+4. Füge in com.clt.webServer/src/main/resources/inf.json die Namen unter denen die Graphen zur verfügung stehen sollen und die Pfade zu den Graphen 
 
 ## Start
 Der Command zum Starten des Online Services ist:

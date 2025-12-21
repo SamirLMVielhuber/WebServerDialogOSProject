@@ -1,12 +1,28 @@
 # Erklärung
 
 ## Setup
-1. Erstelle einen Keystore und füge ihn ins Projekt ein, merke Passwort
-2. Suche IP Adresse heraus auf der das Programm laufen soll
+1. Erstelle einen Keystore und füge ihn ins Projekt ein, merke Passwort e.g.
+    <center>
+    keytool -genkeypair -alias mycert -keyalg RSA -keysize 2048 -validity 365 -storetype PKCS12 -keystore mycert.p12
+    </center>
+    Verschiebe das Certificate am besten in:
+    <center>
+    
+    **src\\main\\resources\\SSLCertificates\\YourCetName.p12**
+    </center>
+
+2. Suche IP Adresse heraus auf der das Programm laufen soll:
+    <center>
+
+    **ipconfig**
+    </center>
 3. Erstelle die File:
     <center>
-    /com/server.properties<br>
-    TODO Füge Example Picture ein
+
+    **dialogos\com.clt.base\src\main\resources\com\server.properties**<br>
+    <p align="center">
+    <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+    </p>
     </center>
     füge dort alles hinein. Die File ist aus Sicherheitsgründen im .gitignore, wir wollen ja nich das irgendwas ausversehen gepublisht wird.
     Dies gilt auch für den gesamten SSLCertificates Folder.
@@ -15,7 +31,8 @@
 ## Start
 Der Command zum Starten des Online Services ist:
 <center>
-./gradlew :com.clt.webServer:testAudioServer
+
+**./gradlew :com.clt.webServer:testAudioServer**
 </center>
 
 ## Wie funktioniert's

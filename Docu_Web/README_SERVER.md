@@ -26,7 +26,13 @@
     </center>
     füge dort alles hinein. Die File ist aus Sicherheitsgründen im .gitignore, wir wollen ja nich das irgendwas ausversehen gepublisht wird.
     Dies gilt auch für den gesamten SSLCertificates Folder.
-4. Füge in com.clt.webServer/src/main/resources/inf.json die Namen unter denen die Graphen zur verfügung stehen sollen und die Pfade zu den Graphen 
+4. Füge in com.clt.webServer/src/main/resources/inf.json die Namen unter denen die Graphen zur verfügung stehen sollen und die Pfade zu den Graphen<br>
+    Beispiel:
+    <center>
+        <p align="center">
+        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+        </p>
+    </center>
 
 ## Start
 Der Command zum Starten des Online Services ist:
@@ -50,7 +56,7 @@ Der Command zum Starten des Online Services ist:
     Der ConnectionManager beinhaltet die Connections, die userID und den dazu passenden GraphManager.<br>
     Der ConnectionManager lädt daraufhin den übergebenen Graphen mittels des GraphManager und weißt mit Hilfe des PortManager passende Port zu.<br>
     Der geladene Graph ist hierbei vom Typ WebDocument (Es können derzeit nur SingleDocuments geladen werden).<br>
-    Der PortManager erlaubt bei der Portauswahl eine beliebige Anzahl X an Usern per Port (ist Hardcoded in der PortManagerklasse).<br>
+    Der PortManager erlaubt bei der Portauswahl eine beliebige Anzahl X an Usern per Port (ist Hardcoded in der PortManagerklasse). Das bedeutet also, dass der PortManager über maximal Anzahl der Sessions entscheidet, nicht aber die Servlets an sich.<br>
     Die ausgewählten Ports (früher waren zwei unterschiedliche möglich, mittlerweile ist es der selbe Port für Input und Output) werden in den Plugins des geladenen Graphen gesetzt.<br>
     Die gewählten Ports und die IP-Adresse werden auch an die Website geschickt. Dadurch kann diese über Port XYZ und IP ABC mit den Endpoints connecten.<br>
     Der ConnectionManager setzt beim ersten Start ein GraphControlRegistry, dies gilt für die Nutzungszeit für alle Nutzer.<br>
@@ -112,3 +118,29 @@ Der Command zum Starten des Online Services ist:
     </div>
 </div>
 
+### Offline
+**Parameter**
+<div style="margin-left: 2em;">
+    Die angegebenen Parameter der IP und Ports werden genutzt um den die Servlets zu starten. Die userId ist hierbei "default", also die Endpunkte können über:
+        <center>
+        
+**wss://{ipAdress}:{port}/audio-receive?userId=default**
+        **wss://{ipAdress}:{port}/audio-stream?userId=default**
+        </center>
+</div>
+
+**Buttons**
+<div style="margin-left: 2em;">
+    Es müssen sowohl in dem Input als auch in dem Output Plugin StartServer gedrückt werden. Dies ruft attachHub für beide Plugins auf, um zu gewährleisten das die Plugins mit den Endpoints verbunden sind.
+    Der Stop Button, muss aber nur bei einem gedrückt werden.
+    Dies sorgt automatisch dafür das der komplette Hub geschlossen wird und "alle" Users (also der default) entfernt werden.
+    <p align="center">
+        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+    </p>
+    <p align="center">
+        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+    </p>
+    <p align="center">
+        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+    </p>
+</div>

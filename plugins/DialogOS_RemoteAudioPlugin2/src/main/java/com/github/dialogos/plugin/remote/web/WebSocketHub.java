@@ -1,6 +1,9 @@
 package com.github.dialogos.plugin.remote.web;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -73,6 +76,7 @@ public class WebSocketHub {
             HubRegistry.unregisterHub(port);
             this.server.stop();
             this.server = null;
+            this.removeAllUsers(); //Just in case some user is left
             System.out.println("WebSocketHub: stopped on port " + port);
             System.out.flush();
         }
@@ -140,6 +144,19 @@ public class WebSocketHub {
             }
         }
         callbacks.remove(userId);
+    }
+
+    public void removeAllUsers(){
+        System.out.println("WebSocketHub: Removing all Users");
+        //Just in Case create a Set of all Users to make sure to properly delete everysingle one of them
+        Set<String> allUsers = new HashSet<>();
+
+        allUsers.addAll(inputSessions.keySet());
+        allUsers.addAll(outputSessions.keySet());
+        allUsers.addAll(callbacks.keySet());
+
+        for (String userId : allUsers)
+            removeUser(userId);
     }
 
     public void registerOutputSession(String userId, Session session) {

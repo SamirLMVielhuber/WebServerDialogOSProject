@@ -13,6 +13,9 @@ public class Manager {
         serverMode = isServerMode;
     }
 
+    public static boolean isServerMode(){
+        return serverMode;
+    }
     /**
         Get or create a hub for the given port.
         If in GUI mode, just returns/creates a global singleton.
@@ -56,7 +59,11 @@ public class Manager {
     public static WebSocketHub getHub(String port) {
         return serverMode ? portHubs.get(port) : globalHub;
     }
-
+    
+    /*
+        Actually this is never been called in !serverMode, so actually calling globalHub.stop() is not nessecary, 
+        especially considering that the parameter port is completly ignored in that case
+    */
     public static void removeHub(String port) {
         if (serverMode) {
             WebSocketHub hub = portHubs.remove(port);
@@ -64,6 +71,10 @@ public class Manager {
                 try { hub.stop(); } catch (Exception ignored) {}
                 System.out.println("HubManager: Removed hub for Port " + port);
             }
+        }
+        else if(globalHub != null){
+            try{ globalHub.stop(); } catch (Exception ignored) {}
+            globalHub = null;
         }
     }
 

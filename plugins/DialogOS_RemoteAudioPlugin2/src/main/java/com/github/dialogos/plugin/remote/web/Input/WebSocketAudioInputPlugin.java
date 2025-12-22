@@ -166,7 +166,7 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
         System.out.flush();
     }
 
-    //In standalone GUI mode, this ensures the hub starts even if output plugin hasn’t run yet
+    //In standalone GUI mode, this ensures the hub starts even if input plugin hasn’t run yet
     public void ensureHubStarted() {
         attachHub("default");
     }

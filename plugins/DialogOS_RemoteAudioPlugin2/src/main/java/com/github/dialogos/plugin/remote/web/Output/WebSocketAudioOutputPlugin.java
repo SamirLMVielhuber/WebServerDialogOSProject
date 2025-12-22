@@ -75,14 +75,6 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
                 @Override
                 public void startServer() {
                     ensureHubStarted();
-                    try {
-                        hub.start();
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        System.out.println("WebSocketInputSettings: Error starting Server: " + e.getMessage());
-                        e.printStackTrace();
-                        System.out.flush();
-                    }
                 }
 
                 @Override

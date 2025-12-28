@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dialogos Webclient</title>
+</head>
+<body>
+  <h1>Dialogos Webclient</h1>
+
+  <button id="startRecording">Starte Aufnahme</button>
+  <button id="stopRecording" disabled>Stoppe Aufnahme</button>
+  <button id="startGraph">Start Graph</button>
+
+  <br><br><br>
+
+  <span>Empfangene Audio:</span>
+  <meter id="volume-meter" min="0" max="100" value="0"></meter>
+
+  <br><br>
+
+  <div>
+    <h2>Status Lights</h2>
+    <div style="display: flex; gap: 30px;">
+      <div>
+        <div id="light-audio-stream"
+             style="width: 30px; height: 30px; border-radius: 50%;
+                    background-color: red; cursor: pointer;">
+        </div>
+        <p>Audio Stream</p>
+      </div>
+      <div>
+        <div id="light-audio-send"
+             style="width: 30px; height: 30px; border-radius: 50%;
+                    background-color: red; cursor: pointer;">
+        </div>
+        <p>Audio Send</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.audioApp = {
+      userId: "default",
+      serverIP: "192.168.2.108",
+      inputPort: 8080,
+      outputPort: 8080,
+      wsAudioStream: null,
+      wsAudioSend: null,
+      audioContext: null,
+      processorNode: null,
+      mediaStream: null
+    };
+  </script>
+
+  <script src="shared.js" defer></script>
+
+  <script type="module">
+    document.getElementById("startGraph").addEventListener("click", () => {
+        const wsStream = window.audioApp.wsAudioStream;
+        const wsSend = window.audioApp.wsAudioSend;
+
+        const streamOpen = wsStream && wsStream.readyState === WebSocket.OPEN;
+        const sendOpen   = wsSend && wsSend.readyState === WebSocket.OPEN;
+
+        if (!streamOpen || !sendOpen) {
+            logStatus("Cannot start graph: both WebSockets must be connected");
+            alert("Cannot start graph: both WebSockets must be connected");
+            return;
+        }
+
+        // For now send START_GRAPH on the output socket
+        wsStream.send("START_GRAPH");
+        logStatus("Sent START_GRAPH command to server");
+    });
+  </script>
+
+  <script src="audioRecorder.js" defer></script>
+  <script src="audioPlayer.js" defer></script>
+  
+</body>
+</html>

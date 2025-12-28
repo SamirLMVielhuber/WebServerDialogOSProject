@@ -9,7 +9,12 @@ import java.util.function.Consumer;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
@@ -30,13 +35,48 @@ public class WebSocketHub {
         this.port = port;
     }
 
-    private static final String PATH = Config.PATH();
+    private static final Resource KEYSTORE = Config.KEYSTORE();
     private static final String PW = Config.PASS();
     private static final String IP = Config.IP();
 
     public void start() throws Exception{
         this.start(null);
     }
+
+    private static void runWebServer() throws Exception {
+        int port = 8000;
+        
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStoreResource(KEYSTORE);
+        sslContextFactory.setKeyStorePassword(PW);
+        sslContextFactory.setKeyManagerPassword(PW);
+
+        Server server = new Server();
+        ServerConnector connector = new ServerConnector(server, sslContextFactory);
+        connector.setHost(IP);
+        connector.setPort(port);
+
+        server.addConnector(connector);
+
+        ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setDirectoriesListed(false);
+        resourceHandler.setResourceBase(WebSocketHub.class.getResource("/webappTest").toExternalForm());
+        resourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        ContextHandler staticContext = new ContextHandler("/");
+        staticContext.setHandler(resourceHandler);
+
+        HandlerList handlers = new HandlerList();
+        handlers.addHandler(staticContext);
+
+        server.setHandler(handlers);
+
+        server.start();
+        System.out.println("Server running at https://" + IP + ":" + port);
+        System.out.println("WebSocket endpoints will be created dynamically at:");
+        System.out.println("     wss://" + IP + ":{somePort}/audio-stream");
+        System.out.println("     wss://"+ IP +":{somePort}/audio-receive");
+    }
+    
     //Safe to call because it instantly returns if it should not be possible to call it
     public void start(String ip) throws Exception {
         if (this.server != null && this.server.isRunning()) 
@@ -49,7 +89,7 @@ public class WebSocketHub {
             ip = IP;
 
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStorePath(PATH);
+        sslContextFactory.setKeyStoreResource(KEYSTORE);
         sslContextFactory.setKeyStorePassword(PW);
         sslContextFactory.setKeyManagerPassword(PW);
 
@@ -74,6 +114,9 @@ public class WebSocketHub {
 
         System.out.println("WebSocketHub: started on port " + port);
         System.out.flush();
+
+        if(!Manager.isServerMode())
+            this.runWebServer(); //For testing
     }
 
     public void stop() throws Exception {

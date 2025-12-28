@@ -161,7 +161,7 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
 
         Session s = hub.getOutputSession(userId);
         try{
-            if(s.isOpen()){
+            if(s != null && s.isOpen()){
                 s.getRemote().sendBytes(ByteBuffer.wrap(audio));
             }
             else{
@@ -249,19 +249,10 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
                                     ", sampleRate=" + fmt.getSampleRate()
                     );
 
-
-
-
-
                     int ms = (int) (((double) bytesRead / frameSize) * 1000.0 / sampleRate);
 
-
                     Thread.sleep(ms);
-
-
                 }
-
-
             } catch (Exception e) {
                 System.out.println("WebSocketStreamer: Exception while streaming audio for user " + this.userId);
                 System.out.println(e.getMessage());

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DialogOS Local Test</title>
+</head>
+<body>
+  <h1>DialogOS – Local Test</h1>
+
+  <button id="connect">Connect</button>
+  <button id="start">Start Graph</button>
+  <button id="record">Start Recording</button>
+  <button id="stop" disabled>Stop Recording</button>
+
+  <pre id="log"></pre>
+
+<script>
+const userId = "default";
+const PORT = 8080;
+const HOST = "192.168.2.108";
+
+let wsSend, wsStream;
+let audioContext, processor, micStream;
+
+function log(msg) {
+  document.getElementById("log").textContent += msg + "\n";
+}
+
+document.getElementById("connect").onclick = () => {
+  wsSend = new WebSocket(
+    `wss://${HOST}:${PORT}/audio-receive?userId=${encodeURIComponent(userId)}`
+  );
+  wsSend.binaryType = "arraybuffer";
+
+  wsStream = new WebSocket(
+    `wss://${HOST}:${PORT}/audio-stream?userId=${encodeURIComponent(userId)}`
+  );
+  wsStream.binaryType = "arraybuffer";
+
+  wsSend.onopen = () => log("audio-receive connected");
+  wsStream.onopen = () => log("audio-stream connected");
+
+  wsStream.onmessage = e => playAudio(e.data);
+};
+
+document.getElementById("start").onclick = () => {
+  if (wsStream?.readyState === WebSocket.OPEN) {
+    wsStream.send("START_GRAPH");
+    log("START_GRAPH sent");
+  }
+};
+
+document.getElementById("record").onclick = startRecording;
+document.getElementById("stop").onclick = stopRecording;
+
+async function startRecording() {
+  if (!wsSend || wsSend.readyState !== WebSocket.OPEN) {
+    log("audio-receive not connected");
+    return;
+  }
+
+  audioContext = new AudioContext({ sampleRate: 48000 });
+  await audioContext.audioWorklet.addModule("pcmProcessor.js");
+
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const source = audioContext.createMediaStreamSource(micStream);
+
+  processor = new AudioWorkletNode(audioContext, "pcm-processor");
+  processor.port.onmessage = e => {
+    if (wsSend.readyState === WebSocket.OPEN) {
+      wsSend.send(e.data);
+    }
+  };
+
+  source.connect(processor);
+  processor.connect(audioContext.destination);
+
+  document.getElementById("record").disabled = true;
+  document.getElementById("stop").disabled = false;
+  log("Recording started");
+}
+
+function stopRecording() {
+  processor?.disconnect();
+  audioContext?.close();
+  micStream?.getTracks().forEach(t => t.stop());
+
+  document.getElementById("record").disabled = false;
+  document.getElementById("stop").disabled = true;
+  log("Recording stopped");
+}
+
+/* ---------- playback ---------- */
+
+let playCtx = new AudioContext({ sampleRate: 48000 });
+let nextTime = 0;
+
+function playAudio(buffer) {
+  const pcm = new Int16Array(buffer);
+  const floats = new Float32Array(pcm.length);
+
+  for (let i = 0; i < pcm.length; i++) {
+    floats[i] = pcm[i] / 32768;
+  }
+
+  const audioBuffer = playCtx.createBuffer(1, floats.length, 48000);
+  audioBuffer.copyToChannel(floats, 0);
+
+  const src = playCtx.createBufferSource();
+  src.buffer = audioBuffer;
+  src.connect(playCtx.destination);
+
+  if (nextTime < playCtx.currentTime) {
+    nextTime = playCtx.currentTime;
+  }
+
+  src.start(nextTime);
+  nextTime += audioBuffer.duration;
+}
+</script>
+</body>
+</html>

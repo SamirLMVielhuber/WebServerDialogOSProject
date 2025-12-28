@@ -4,6 +4,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -43,7 +44,7 @@ public class TestAudioServer {
     /**
         Starts the normal DialogOS Web Server
      */
-    private static final String PATH = Config.PATH();
+    private static final Resource KEYSTORE = Config.KEYSTORE();
     private static final String PW = Config.PASS();
     private static final String IP = Config.IP();
 
@@ -52,7 +53,7 @@ public class TestAudioServer {
         int port = 8080;
         
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStorePath(PATH);
+        sslContextFactory.setKeyStoreResource(KEYSTORE);
         sslContextFactory.setKeyStorePassword(PW);
         sslContextFactory.setKeyManagerPassword(PW);
 

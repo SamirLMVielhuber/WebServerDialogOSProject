@@ -8,8 +8,10 @@
     Verschiebe das Certificate am besten in:
     <center>
     
-    **src\\main\\resources\\SSLCertificates\\YourCetName.p12**
+    **com.clt.base\src\main\resources\com\YourCertName.p12**
     </center>
+    Das wird geladen als Resource von der Config der Pfad für die ServerProperties wäre also dann
+    **com/SSLCertificates/YourCertName.p12**
 
 2. Suche IP Adresse heraus auf der das Programm laufen soll:
     <center>
@@ -149,6 +151,7 @@ Der Command zum Starten des normalen Services ist:
     <p align="center">
         <img src="pics/audio_output.png" alt="Beispiel audio Output" width="600"/>
     </p>
+ **Als Beweis das es geht ist derzeit auch eine index file und ein eigener Server der im nicht ServerModus gestartet wird. Dieser kann später entfernt werden. Aber fürs testen kann man DialogOS Starten, die Server starten und dann einfach auf die Website gehen die im Terminal aufkommt https://YourIP:8000. ABER DIE WEBSITE KRIEGT DERZEIT HARDCODED IN DIESEM MODUS SOWOHL DIE IP ALS AUCH DEN PORT!!!!!! MUSS ALSO DORT AUCH VERÄNDERT WERDEN.**
 </div>
 
 **TODO**
@@ -157,5 +160,6 @@ Der Command zum Starten des normalen Services ist:
     Die start funktion des Servers kann derzeit eine IP übernehmen, man könnte diese auf localhost prüfen und dann von wss-Verbindung und dem SSL Zertifikat auf eine einfache ws-Verbindung ohne nötiges Zertifikat wechseln.
     Note: Sollte einfach über if's möglich sein in der Start funktion des WebSocketHub und über eine kleine Anpassung im Aufruf dieser funktion in den passenden Plugin Settings. (nehm ich an, denke ich, kp, viel Glück). <br>
     - Lösche die andere Remote Implementation. <br>
-    - Mehr testing kann nie Schaden.
+    - Mehr testing kann nie Schaden.<br>
+    - Mehr Rückmeldungen für den User der Website auch im Fehlerfall.
 </div>

@@ -2,6 +2,7 @@ package com.clt;
 
 import java.io.InputStream;
 import java.util.Properties;
+import org.eclipse.jetty.util.resource.Resource;
 
 public class Config {
 
@@ -19,13 +20,23 @@ public class Config {
     public static String IP() {
         System.out.println("Config: Getting server IP: " + props.getProperty("server.ip"));
         System.out.flush();
-        return props.getProperty("server.ip");
+        return props.getProperty("server.ip", "localhost");
     }
 
-    public static String PATH() {
-        System.out.println("Config: Getting keystore path: " + props.getProperty("server.keystore.path"));
-        System.out.flush();
-        return props.getProperty("server.keystore.path");
+    public static Resource KEYSTORE() {
+        String cp = props.getProperty("server.keystore.classpath");
+        if (cp == null || cp.isEmpty()) {
+            throw new IllegalStateException("server.keystore.classpath not set");
+        }
+
+        Resource res = Resource.newClassPathResource(cp);
+        if (res == null) {
+            throw new IllegalStateException(
+                "Keystore not found on classpath: " + cp
+            );
+        }
+
+        return res;
     }
 
     public static String PASS() {

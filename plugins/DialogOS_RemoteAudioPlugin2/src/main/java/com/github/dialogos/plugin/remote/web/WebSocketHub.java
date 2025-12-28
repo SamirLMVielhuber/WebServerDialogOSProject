@@ -34,14 +34,19 @@ public class WebSocketHub {
     private static final String PW = Config.PASS();
     private static final String IP = Config.IP();
 
+    public void start() throws Exception{
+        this.start(null);
+    }
     //Safe to call because it instantly returns if it should not be possible to call it
-    public void start() throws Exception {
+    public void start(String ip) throws Exception {
         if (this.server != null && this.server.isRunning()) 
             return;
 
         System.out.println("Starting Server on Port: " + this.port);
         this.server = new Server();
 
+        if(ip == null || ip.isEmpty())
+            ip = IP;
 
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setKeyStorePath(PATH);
@@ -49,7 +54,7 @@ public class WebSocketHub {
         sslContextFactory.setKeyManagerPassword(PW);
 
         ServerConnector connector = new ServerConnector(this.server, sslContextFactory);
-        connector.setHost(IP);
+        connector.setHost(ip);
         connector.setPort(port);
         this.server.addConnector(connector);
 

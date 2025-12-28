@@ -30,19 +30,20 @@
     Beispiel:
     <center>
         <p align="center">
-        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+        <img src="pics/inf_file_example.png" alt="Beispiel inf.json" width="600"/>
         </p>
     </center>
 
 ## Start
-Der Command zum Starten des Online Services ist:
+Der Command zum Starten des Server Services ist:
 <center>
 
 **./gradlew :com.clt.webServer:testAudioServer**
 </center>
 
+
 ## Wie funktioniert's
-### Online
+### Server
 **Website**
 <div style="margin-left: 2em;">
         Zuerst wird ein Server gestartet auf Port 8080, dieser beinhaltet die Website.<br>
@@ -118,7 +119,13 @@ Der Command zum Starten des Online Services ist:
     </div>
 </div>
 
-### Offline
+### Nicht Server
+Der Command zum Starten des normalen Services ist:
+<center>
+
+**./gradlew run**
+</center>
+
 **Parameter**
 <div style="margin-left: 2em;">
     Die angegebenen Parameter der IP und Ports werden genutzt um den die Servlets zu starten. Die userId ist hierbei "default", also die Endpunkte können über:
@@ -127,20 +134,28 @@ Der Command zum Starten des Online Services ist:
 **wss://{ipAdress}:{port}/audio-receive?userId=default**
         **wss://{ipAdress}:{port}/audio-stream?userId=default**
         </center>
+    Siehe auch Erklärung Plugins im Onlineteil.
 </div>
 
 **Buttons**
 <div style="margin-left: 2em;">
-    Es müssen sowohl in dem Input als auch in dem Output Plugin StartServer gedrückt werden. Dies ruft attachHub für beide Plugins auf, um zu gewährleisten das die Plugins mit den Endpoints verbunden sind.
+    Es müssen sowohl in dem Input als auch in dem Output Plugin StartServer gedrückt werden.
+    Dies ruft attachHub für beide Plugins auf, um zu gewährleisten das die Plugins mit den Endpoints verbunden sind.
     Der Stop Button, muss aber nur bei einem gedrückt werden.
     Dies sorgt automatisch dafür das der komplette Hub geschlossen wird und "alle" Users (also der default) entfernt werden.
     <p align="center">
-        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+        <img src="pics/audio_input.png" alt="Beispiel audio Input" width="600"/>
     </p>
     <p align="center">
-        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
+        <img src="pics/audio_output.png" alt="Beispiel audio Output" width="600"/>
     </p>
-    <p align="center">
-        <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
-    </p>
+</div>
+
+**TODO**
+<div style="margin-left: 2em;">
+    - Momentan wird die IP nur aus den Server.properties genommen, das könnte man verändern zum Beispiel für den lokalen Modus.
+    Die start funktion des Servers kann derzeit eine IP übernehmen, man könnte diese auf localhost prüfen und dann von wss-Verbindung und dem SSL Zertifikat auf eine einfache ws-Verbindung ohne nötiges Zertifikat wechseln.
+    Note: Sollte einfach über if's möglich sein in der Start funktion des WebSocketHub und über eine kleine Anpassung im Aufruf dieser funktion in den passenden Plugin Settings. (nehm ich an, denke ich, kp, viel Glück). <br>
+    - Lösche die andere Remote Implementation. <br>
+    - Mehr testing kann nie Schaden.
 </div>

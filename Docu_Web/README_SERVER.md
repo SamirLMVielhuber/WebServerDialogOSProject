@@ -154,7 +154,8 @@ Auch der nicht Server Mode wird dich derzeit nach einiger Zeit disconnecten wenn
         <img src="pics/audio_output.png" alt="Beispiel audio Output" width="600"/>
     </p>
  
- **Als Beweis das es geht ist derzeit auch eine index file und ein eigener Server der im nicht ServerModus gestartet wird. Dieser kann später entfernt werden. Aber fürs testen kann man DialogOS Starten, den Server starten für die beiden WebSockets und dann einfach auf die Website gehen die im Terminal aufkommt https://YourIP:8000. ABER DIE WEBSITE KRIEGT DERZEIT HARDCODED IN DIESEM MODUS SOWOHL DIE IP ALS AUCH DEN PORT!!!!!! MUSS ALSO DORT AUCH VERÄNDERT WERDEN.**
+ **Als Beweis das es geht ist derzeit auch eine index file und ein eigener Server der im nicht ServerModus gestartet wird. Dieser kann später entfernt werden. Aber fürs testen kann man DialogOS Starten, den Server starten für die beiden WebSockets und dann einfach auf die Website gehen die im Terminal aufkommt https://YourIP:8000. ABER DIE WEBSITE KRIEGT DERZEIT HARDCODED IN DIESEM MODUS SOWOHL DIE IP ALS AUCH DEN PORT!!!!!! MUSS ALSO DORT AUCH VERÄNDERT WERDEN.
+ EBENFALLS FUNKTIONIERT DER STARTBUTTON NICHT AUF DER WEBSITE, es muss der normale Start Button in der DialogOS GUI genutzt werden.**
 </div>
 
 **TODO**

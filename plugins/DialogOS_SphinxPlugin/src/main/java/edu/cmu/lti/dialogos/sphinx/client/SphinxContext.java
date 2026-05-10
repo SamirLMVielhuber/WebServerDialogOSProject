@@ -88,6 +88,13 @@ public class SphinxContext extends RecognitionContext {
                 dflat = context.getInstance(DynamicFlatLinguist.class);
                 csr = new ConfigurableSpeechRecognizer(context, audioSource, audioInputPlugin);
             }
+            else{
+                if(csr.getAudioPlugin() != this.audioInputPlugin){
+                    System.out.println("ConfigurableSpeechRecoginizer Plugin " + csr.getAudioPlugin().getId() + " != " + this.audioInputPlugin.getId() + " from Sphinx Context");
+                    csr.resetRecognition();    
+                    csr.changeInputPlugin(this.audioInputPlugin);
+                }
+            }
             if (sls.revalidateG2P) {
                 csr.resetRecognition();
                 dic.deallocate();

@@ -30,7 +30,7 @@ public class ConfigurableSpeechRecognizer extends AbstractSpeechRecognizer {
             }
             @Override public void newProperties(PropertySheet ps) throws PropertyException { }
         });*/
-
+        System.out.println("Configurable Speech Recognizer start");
         this.audioInputPlugin = audioInputPlugin;
 
         StreamDataSource sds = context.getInstance(StreamDataSource.class);
@@ -39,6 +39,19 @@ public class ConfigurableSpeechRecognizer extends AbstractSpeechRecognizer {
         } else {
             sds.setInputStream(audioInputPlugin.setupAndGetAudioInput());
         }
+    }
+
+    public synchronized void changeInputPlugin(AudioPlugin audioInputPlugin) throws IOException{
+        if(!audioInputPlugin.isAudioInputPlugin())
+            throw new IOException("ConfigurableSpeechRecognizers AudioInputPlugin was changed with wrong Plugin (not an InputPlugin)" + audioInputPlugin.getId());
+        System.out.println("Changing Configureable Speech Recognizer");
+        this.audioInputPlugin = audioInputPlugin;
+        StreamDataSource sds = context.getInstance(StreamDataSource.class);
+        sds.setInputStream(this.audioInputPlugin.setupAndGetAudioInput());
+    }
+
+    public synchronized AudioPlugin getAudioPlugin(){
+        return this.audioInputPlugin;
     }
 
     public synchronized void startRecognition() {

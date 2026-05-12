@@ -20,6 +20,7 @@ import com.clt.Config;
 import com.clt.webServer.Servlets.DialogLoadServlet;
 import com.clt.webServer.Servlets.InfJsonServlet;
 import com.github.dialogos.plugin.remote.web.Manager;
+import com.github.dialogos.plugin.remote.web.UserTimeoutScheduler;
 
 public class TestAudioServer {
 
@@ -89,7 +90,15 @@ public class TestAudioServer {
         System.out.println("     wss://" + IP + ":{somePort}/audio-stream");
         System.out.println("     wss://"+ IP +":{somePort}/audio-receive");
         Manager.setServerMode(true);
-
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                System.out.println("Shutting Down TestAudioServer");
+                UserTimeoutScheduler.getInstance().shutdown();
+                Manager.stopAll();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
         server.join();
     }
 

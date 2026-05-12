@@ -65,4 +65,20 @@ public class UserTimeoutScheduler {
             }
         }
     }
+
+    public void shutdown() {
+        System.out.println("Shutting down UserTimeoutScheduler");
+
+        scheduler.shutdown();
+
+        try {
+            if (!scheduler.awaitTermination(3, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+        }
+
+        tasks.clear();
+    }
 }

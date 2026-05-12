@@ -79,12 +79,13 @@ public class Manager {
     }
 
     public static void stopAll() {
+        System.out.println("Schutting down all Hubs");
         if (globalHub != null) {
-            try { globalHub.stop(); } catch (Exception ignored) {}
+            try { globalHub.stop(); } catch (Exception e) {e.printStackTrace();}
             globalHub = null;
         }
         portHubs.values().forEach(h -> {
-            try { h.stop(); } catch (Exception ignored) {}
+            try { h.stop(); } catch (Exception e) {e.printStackTrace();}
         });
         portHubs.clear();
     }

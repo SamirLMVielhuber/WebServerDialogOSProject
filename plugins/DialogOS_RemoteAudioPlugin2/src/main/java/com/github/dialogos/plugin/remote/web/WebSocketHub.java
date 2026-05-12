@@ -115,14 +115,17 @@ public class WebSocketHub {
         System.out.println("WebSocketHub: started on port " + port);
         System.out.flush();
 
-        if(!Manager.isServerMode())
-            this.runWebServer(); //For testing
+        if(!Manager.isServerMode()){
+            System.out.println("Server Mode is off running web Server, for testing idk why" );
+            runWebServer(); //For testing
+        }
     }
 
     public void stop() throws Exception {
         if (this.server != null) {
             HubRegistry.unregisterHub(port);
             this.server.stop();
+            this.server.destroy();
             this.server = null;
             this.removeAllUsers(); //Just in case some user is left
             System.out.println("WebSocketHub: stopped on port " + port);

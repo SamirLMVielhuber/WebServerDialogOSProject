@@ -1,4 +1,4 @@
 server.ip=YOU_IP
-server.keystore.path=KEYSTORE_PATH
+server.keystore.classpath=KEYSTORE_PATH
 server.keystore.password=KEYSTORE_PW
 server.per_port_capacity=MAX_PER_PORT_USERS

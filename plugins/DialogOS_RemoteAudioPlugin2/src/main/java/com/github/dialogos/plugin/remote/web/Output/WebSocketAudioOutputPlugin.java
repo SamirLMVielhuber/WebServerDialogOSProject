@@ -216,7 +216,8 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
 
                 //AudioFormat targetFormat = new AudioFormat(16000, 16, 1, true, false);
                 //AudioInputStream convertedStream = AudioSystem.getAudioInputStream(targetFormat, this.audioStream);
-                AudioFormat format = new AudioFormat(51000, 16, 1, true, false);
+                //AudioFormat format = new AudioFormat(51000, 16, 1, true, false);
+                  AudioFormat format = audioStream.getFormat();
 
 
 
@@ -251,7 +252,7 @@ public class WebSocketAudioOutputPlugin implements com.clt.dialogos.plugin.Audio
 
                     int ms = (int) (((double) bytesRead / frameSize) * 1000.0 / sampleRate);
 
-                    Thread.sleep(ms);
+                   //Thread.sleep(ms);
                 }
             } catch (Exception e) {
                 System.out.println("WebSocketStreamer: Exception while streaming audio for user " + this.userId);

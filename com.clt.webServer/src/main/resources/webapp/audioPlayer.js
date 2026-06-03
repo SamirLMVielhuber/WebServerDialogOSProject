@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let nextStartTime = 0;
 
   function playAudio(arrayBuffer) {
-    console.log("Received PCM length:", arrayBuffer.byteLength);
+    console.log("111Received PCM length:", arrayBuffer.byteLength);
 
     const pcmData = new Int16Array(arrayBuffer);
     const float32Data = new Float32Array(pcmData.length);

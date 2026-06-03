@@ -1,7 +1,7 @@
 class PCMProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
-        this.resampleRatio = 48000/16000; // 48 kHz to 16 kHz resampling ratio
+        //this.resampleRatio = 48000/16000; // 48 kHz to 16 kHz resampling ratio
         this.buffer = [];
     }
 
@@ -14,11 +14,15 @@ class PCMProcessor extends AudioWorkletProcessor {
 
             // Convert to 16-bit PCM and downsample
             for (let i = 0; i < inputChannel.length; i++) {
+                const sample = this.floatTo16BitPCM(inputChannel[i]);
+                this.buffer.push(sample);
+            }
+            /*for (let i = 0; i < inputChannel.length; i++) {
                 if (i % this.resampleRatio === 0) {
                     const sample = this.floatTo16BitPCM(inputChannel[i]);
                     this.buffer.push(sample);
                 }
-            }
+            }*/
 
             // Send the resampled 16-bit PCM data to the main thread & reset buffer
             this.port.postMessage(new Int16Array(this.buffer));

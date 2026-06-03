@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     // TODO change ip address
+    console.log("JS_FILE_LOADED");
     const ws = new WebSocket("ws://192.168.178.20:8080/audio-stream");
 
     ws.binaryType = "arraybuffer";
@@ -7,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const volumeMeter = document.getElementById("volume-meter");
 
     ws.onmessage = function(event) {
+        console.log("MESSAGE_RECEIVED");
         const audioData = event.data;
         playAudio(audioData);
     };
@@ -21,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
      * @param audioData the audio to play
      */
     function playAudio(audioData) {
+        console.log("PLAY_AUDIO_CALLED");
         if (!audioContext) {
             //audioContext = new AudioContext({sampleRate: 48000});
             audioContext = new AudioContext();
@@ -30,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
             dataArray = new Uint8Array(analyser.frequencyBinCount)
         }
 
-        audioContext.decodeAudioData(audioData, function(buffer) {
+        /*audioContext.decodeAudioData(audioData, function(buffer) {
             if (audioSource) {
                 audioSource.stop();
             }
@@ -45,7 +48,54 @@ document.addEventListener("DOMContentLoaded", function () {
             audioSource.start(0);
 
             updateVolumeMeter();
-        });
+        });*/
+        function playAudio(audioData) {
+            console.log("PLAY_AUDIO_CALLED");
+            if (!audioContext) {
+                audioContext = new AudioContext({ sampleRate: 48000 });
+
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+            }
+
+            // Convert PCM Int16Array to Float32Array
+            const pcmData = new Int16Array(audioData);
+
+            const floatData = new Float32Array(pcmData.length);
+
+            for (let i = 0; i < pcmData.length; i++) {
+                floatData[i] = pcmData[i] / 32768.0;
+            }
+
+            // Create AudioBuffer manually
+            const audioBuffer = audioContext.createBuffer(
+                1,                  // mono
+                floatData.length,
+                48000               // sample rate
+            );
+
+            audioBuffer.copyToChannel(floatData, 0);
+
+            // Stop previous audio
+            if (audioSource) {
+                audioSource.stop();
+            }
+
+            // Play
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = audioBuffer;
+
+            const gainNode = audioContext.createGain();
+
+            audioSource.connect(gainNode);
+            gainNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+
+            audioSource.start();
+
+            updateVolumeMeter();
+        }
     }
 
     /**

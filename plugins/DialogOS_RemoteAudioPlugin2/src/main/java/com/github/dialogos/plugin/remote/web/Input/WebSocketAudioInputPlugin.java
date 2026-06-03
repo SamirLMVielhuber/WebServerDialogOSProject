@@ -176,64 +176,76 @@ public class WebSocketAudioInputPlugin implements com.clt.dialogos.plugin.AudioP
         private byte[] currentBuffer = null;
         private int currentBufferPosition = 0;
         private volatile boolean recording = false;
+        private volatile boolean closed = false;
 
         public void startRecording(){
             this.recording = true;
+            this.closed = false;
         }
+
         public boolean isRecording(){
-            return this.recording;
+            return recording && !closed;
         }
-        public void stopRecording(){
+
+        public void stopRecording() {
+            System.out.println("WebSocketInputStream: Stop Recording");
             this.recording = false;
-            synchronized(audioQueue){
-                audioQueue.offer(new byte[0]);
+            this.closed = true;
+
+            this.audioQueue.clear();
+            this.audioQueue.offer(new byte[0]);
+        }
+
+        public void addAudioData(byte[] audioData) {
+            if (!this.recording || this.closed) return;
+
+            if (audioData != null && audioData.length > 0) {
+                this.audioQueue.offer(audioData);
             }
         }
-        public void addAudioData(byte[] audioData){
-            //System.out.println(this + ": Put Audio into Queue");
-            //System.out.flush();
-            if(this.recording && audioData != null && audioData.length > 0)
-                this.audioQueue.offer(audioData);
+
+        private byte[] nextBuffer() throws IOException {
+            try {
+                byte[] data = audioQueue.take();
+
+                if (data == new byte[0] || this.closed)
+                    return null;
+
+                return data;
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Audio stream interrupted", e);
+            }
         }
 
         @Override
-        public int read() throws IOException{
-            //System.out.println("WebSocketInputStream: Reads from Buffer");
-            //System.out.flush();
-            if(this.currentBuffer == null || this.currentBufferPosition >= currentBuffer.length){
-                try{
-                    this.currentBuffer = audioQueue.take();
-                    this.currentBufferPosition = 0;
-                }catch(InterruptedException e){
-                    Thread.currentThread().interrupt();
-                    throw new IOException(e);
-                }
-                if(currentBuffer.length == 0)
+        public int read() throws IOException {
+            if (this.currentBuffer == null || this.currentBufferPosition >= this.currentBuffer.length) {
+                this.currentBuffer = nextBuffer();
+                this.currentBufferPosition = 0;
+
+                if (this.currentBuffer == null) {
                     return -1;
+                }
             }
-            return currentBuffer[currentBufferPosition++] & 0xFF;
+            return this.currentBuffer[this.currentBufferPosition++] & 0xFF;
         }
         
         @Override
         public int read(byte[] b, int off, int len) throws IOException{
-            //System.out.println(this + ": Reads " + len + " Bytes from buffer");
-            //System.out.flush();
             int bytesRead = 0;
             while(bytesRead < len){
                 if(this.currentBuffer == null || this.currentBufferPosition >= this.currentBuffer.length){
-                    try{
-                        this.currentBuffer = audioQueue.take();
-                        this.currentBufferPosition = 0;
-                    }catch(InterruptedException e){
-                        Thread.currentThread().interrupt();
-                        throw new IOException(e);
-                    }
+                    this.currentBuffer = this.nextBuffer();
+                    this.currentBufferPosition = 0;
+
                     if(currentBuffer.length == 0) 
                         return bytesRead == 0 ? -1 : bytesRead;
                 }
-                int bytesToCopy = Math.min(len - bytesRead, currentBuffer.length - currentBufferPosition);
-                System.arraycopy(currentBuffer, currentBufferPosition, b, off + bytesRead, bytesToCopy);
-                currentBufferPosition += bytesToCopy;
+                int bytesToCopy = Math.min(len - bytesRead, this.currentBuffer.length - this.currentBufferPosition);
+                System.arraycopy(this.currentBuffer, this.currentBufferPosition, b, off + bytesRead, bytesToCopy);
+                this.currentBufferPosition += bytesToCopy;
                 bytesRead += bytesToCopy;
             }
             return bytesRead;

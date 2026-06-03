@@ -200,16 +200,25 @@ public abstract class AbstractRecognizer implements Recognizer, G2P {
         return result;
     }
 
-    public synchronized final void stopRecognition()
-            throws SpeechException {
+    public synchronized final void stopRecognition() throws SpeechException {
         try {
             while (this.isActive()) {
+                System.out.println("stopRecognition thread = " + Thread.currentThread().getName());
+                System.out.println("stopRecognition: calling stopImpl()");
                 this.stopImpl();
+                
                 this.fireRecognizerEvent(RecognizerEvent.RECOGNIZER_DEACTIVATED);
-                this.wait();
+                
+                System.out.println("stopRecognition: waiting...");
+                this.wait(2000); //wait for 2s because I am not entirely sure who should call notify on you?!?!?
+                //                      edit: It seems like the startLiveRecognition does that, but it is not guaranteed that the order is correct
+                //                          so I keep the 2s there.
+                //This loop is strange in general right? i dont want to change it though
+
+                System.out.println("stopRecognition: woke up, active=" + this.active);
             }
-        } catch (InterruptedException ignore) {
-            throw new SpeechException(ignore);
+        } catch (InterruptedException e) {
+            throw new SpeechException(e);
         }
     }
 

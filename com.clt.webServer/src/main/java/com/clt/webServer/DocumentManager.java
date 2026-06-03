@@ -28,7 +28,6 @@ public class DocumentManager{
     private WebSingleDocument document;
     private String userId;
     private Thread graphThread;
-    private volatile boolean stopRequested = false;
     private WozInterface executer;
     
     public DocumentManager(){}
@@ -67,9 +66,14 @@ public class DocumentManager{
         WebSingleDocument.printAllVariables(this.document.getOwnedGraph());
     }
 
-    public void closeGraph(){
+    public void closeGraph() {
         System.out.println("DocumentManager: Closing Graph (cleanup)");
         System.out.flush();
+
+        System.out.println("Interrupting graph thread = " + this.graphThread.getName());
+        
+        Thread threadToStop = this.graphThread;
+        this.graphThread = null;
 
         if (this.document != null) {
             try {
@@ -85,51 +89,40 @@ public class DocumentManager{
         if (this.executer != null) {
             try {
                 System.out.println("DocumentManager: Requesting execution abort");
-                this.executer.abort();             // sets abort flag and disposes input
+                this.executer.abort();
             } catch (Exception ex) {
                 System.out.println("Error calling executer.abort(): " + ex.getMessage());
                 ex.printStackTrace();
             }
         }
 
-        if (this.graphThread != null && this.graphThread.isAlive()) {
+        if (threadToStop != null) {
             try {
+                /*//Trying to figure out which operation blocks if nothing works using Vorschlaghammer tactics by interrupting threadToStop....
+                for (StackTraceElement e : threadToStop.getStackTrace()) {
+                    System.out.println("GRAPH THREAD: " + e);
+                }*/
                 System.out.println("DocumentManager: Interrupting graph thread");
-                this.graphThread.interrupt();
+                threadToStop.interrupt(); //This interrupts is a little bit of a sledgehammer, 
+                //                              but it is the best way i guess to reach e.g. the RecognitionExcecuter stop in AbstractInputNode 
+                //                              without needing to wire it somehow to the outside.
+
             } catch (Exception ex) {
                 System.out.println("Error interrupting graph thread: " + ex.getMessage());
                 ex.printStackTrace();
             }
         }
 
-        //Take this out for production should be fine without this I guess this was just to test and make sure
-        /*if (this.graphThread != null) {
-            final long JOIN_TIMEOUT_MS = 10000;
+        if (threadToStop != null) {
             try {
-                long start = System.currentTimeMillis();
-                System.out.println("DocumentManager: Waiting for graph thread to finish...");
-                this.graphThread.join(JOIN_TIMEOUT_MS);
-                long waited = System.currentTimeMillis() - start;
-                System.out.println("DocumentManager: join returned; waited " + waited + " ms");
+                System.out.println("DocumentManager: Waiting for graph thread to terminate...");
+                threadToStop.join();
+                System.out.println("DocumentManager: Graph thread terminated.");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("DocumentManager: join interrupted: " + e.getMessage());
-                e.printStackTrace();
             }
-
-            if (this.graphThread.isAlive()) {
-                System.out.println("DocumentManager: Thread still alive after join timeout. Will attempt interrupt again.");
-                try {
-                    this.graphThread.interrupt();
-                } catch (Exception ex) {
-                    System.out.println("Error re-interrupting graph thread: " + ex.getMessage());
-                    ex.printStackTrace();
-                }
-            } else {
-                System.out.println("DocumentManager: Graph thread has terminated.");
-            }
-            System.out.flush();
-        }*/
+        }
 
         if (this.executer != null && this.document != null) {
             try {
@@ -143,13 +136,17 @@ public class DocumentManager{
         }
 
         this.executer = null;
-        this.graphThread = null;
 
         System.out.println("DocumentManager: closeGraph complete");
         System.out.flush();
     }
 
     public void startGraph(){
+        if (this.isRunning()) {
+            System.out.println("Graph already running -> closing old one, starting new one.");
+            this.closeGraph();
+        }
+
         this.graphThread = new Thread(() -> {
             try {
                 this.executer = new Executer(null, false);
@@ -164,6 +161,10 @@ public class DocumentManager{
             }
         }, "GraphRunner-" + this.userId);
         this.graphThread.start();
+    }
+
+    public synchronized boolean isRunning() {
+        return this.graphThread != null && this.graphThread.isAlive();
     }
 
     public int getInputPort() { 

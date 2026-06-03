@@ -707,6 +707,7 @@ import java.util.concurrent.TimeoutException;
 
     public MatchResult graphicallyRecognize(JLayeredPane layer, com.clt.srgf.Grammar recGrammar, Pattern[] patterns, long timeout, float confidenceThreshold, boolean interactiveTest) throws TimeoutException {
         RecognitionExecutor recExecutor = createRecognitionExecutor(recGrammar);
+        System.out.println("AbstractInputNode: Graphically Recognize");
 
         final JButton stop = new JButton(GUI.getString("Cancel"));
         stop.addActionListener(evt -> {
@@ -841,6 +842,7 @@ import java.util.concurrent.TimeoutException;
                 }
             }
         } catch (InterruptedException exn) {
+            System.out.println("AbstractInputNode: Interrupting so Stopping Executor");
             recExecutor.stop();
             throw new ExecutionStoppedException();
         } catch (TimeoutException exn) {

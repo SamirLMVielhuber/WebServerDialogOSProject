@@ -54,6 +54,7 @@ public class TestAudioServer {
         int port = 8080;
         
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        System.out.println("Keystore: " + KEYSTORE.toString());
         sslContextFactory.setKeyStoreResource(KEYSTORE);
         sslContextFactory.setKeyStorePassword(PW);
         sslContextFactory.setKeyManagerPassword(PW);

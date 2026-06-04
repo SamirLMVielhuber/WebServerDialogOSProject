@@ -1,17 +1,17 @@
 # Erklärung
 
 ## Setup
-1. Erstelle einen Keystore und füge ihn ins Projekt ein, merke Passwort e.g.
+1. Zuerst braucht man einen Keystore den man ins ins Projekt einfügt. Der Keystore name sollte für derzeit einfach deine IP-Adresse sein, dann kann das leicht aufgerufen werden mit dem derzeitigen Programm-Code. Der Rest kann einfach als enter durchgespammt werden außer das Passwort (das sollte man sich auch Merken braucht man später). Ein Certificate kann man zum Beispiel so kreieren:
     <center>
-    keytool -genkeypair -alias mycert -keyalg RSA -keysize 2048 -validity 365 -storetype PKCS12 -keystore mycert.p12
+    keytool -genkeypair -alias mycert -keyalg RSA -keysize 2048 -validity 365 -storetype PKCS12 -keystore YourCertificateName.p12
     </center>
     Verschiebe das Certificate am besten in:
     <center>
     
-    **com.clt.base\src\main\resources\com\YourCertName.p12**
+    **com.clt.base\src\main\resources\com\SSLCertificates\YourCertificateName.p12**
     </center>
     Das wird geladen als Resource von der Config der Pfad für die ServerProperties wäre also dann
-    **com/SSLCertificates/YourCertName.p12**
+    **com/SSLCertificates/YourCertificateName.p12**
 
 2. Suche IP Adresse heraus auf der das Programm laufen soll:
     <center>
@@ -26,7 +26,7 @@
     <img src="pics/server_properties_example.png" alt="Beispiel server.properties" width="600"/>
     </p>
     </center>
-    füge dort alles hinein. Die File ist aus Sicherheitsgründen im .gitignore, wir wollen ja nich das irgendwas ausversehen gepublisht wird.
+    füge dort alles hinein. Also als password das vorher gemerkte Passwort des keysotres. Die File ist aus Sicherheitsgründen im .gitignore, wir wollen ja nich das irgendwas ausversehen gepublisht wird (das funktioniert nicht btw also aufpassen kp wieso aber ich will damit auch keine Zeit verschwenden).
     Dies gilt auch für den gesamten SSLCertificates Folder.
 4. Füge in com.clt.webServer/src/main/resources/inf.json die Namen unter denen die Graphen zur verfügung stehen sollen und die Pfade zu den Graphen<br>
     Beispiel:
@@ -35,9 +35,9 @@
         <img src="pics/inf_file_example.png" alt="Beispiel inf.json" width="600"/>
         </p>
     </center>
-
+    Im laufenden Betrieb können auch neue Documents hinzugefügt, bzw. alte entfernt werden. Für jeden load werden die Namen neu aus der Json gezogen.
 ## Start
-Der Command zum Starten des Server Services ist:
+Der Command zum Starten des Server Services im Server-Mode (also ohne GUI) ist:
 <center>
 
 **./gradlew :com.clt.webServer:testAudioServer**
@@ -165,6 +165,7 @@ Auch der nicht Server Mode wird dich derzeit nach einiger Zeit disconnecten wenn
     Note: Sollte einfach über if's möglich sein in der Start funktion des WebSocketHub und über eine kleine Anpassung im Aufruf dieser funktion in den passenden Plugin Settings. (nehm ich an, denke ich, kp, viel Glück). <br>
     - Lösche die andere Remote Implementation. <br>
     - Mehr testing kann nie Schaden.<br>
-    - Mehr Rückmeldungen für den User der Website auch im Fehlerfall.
-    - Füge mehr GraphControl über die Website ein vielleicht.
+    - Mehr Rückmeldungen für den User der Website auch im Fehlerfall.<br>
+    - Füge mehr GraphControl über die Website ein vielleicht.<br>
+    - !Manchmal stoppt der Graph, das macht er auch im normalen DialogOS das kann aber nervig werden also am besten herausfinden warum das passiert, wenn er eine Sphinx Node für Recognition erreicht. Aber nicht immer! Wie gesagt auch im normalen DialogOS kann das passierten, derzeit gibt es aber kein Feedback dazu an den Nutzer und der komplette Server muss neugestartet werden um das zu fixen.
 </div>
